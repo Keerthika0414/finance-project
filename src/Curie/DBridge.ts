@@ -1,7 +1,11 @@
 import { LooseObject, ClassConstructor, ConstructorParameters } from "./types";
 import _pgp from "pg-promise"
 import { Server } from "./Server";
-const pgp = _pgp()
+const pgp = _pgp({
+  query(e) {
+    console.dir(e, {colors: true, depth: 1})
+  }
+})
 
 interface Response {
   n: number
@@ -19,16 +23,16 @@ export abstract class DBridge<DBType, QueryType> {
   constructor(db_link: string, server?: Server) {
     server&&!server.db&&(server.db = this)
   }
-  async get(query: QueryType): Promise<LooseObject[] | undefined> {
+  async get(query: QueryType): Promise<LooseObject[] | any> {
     return new Promise(res => res())
   }
-  async update(query: QueryType): Promise<UpdateResponse | undefined> {
+  async update(query: QueryType): Promise<UpdateResponse | any> {
     return new Promise(res => res())
   }
-  async delete(query: QueryType): Promise<DeleteResponse | undefined> {
+  async delete(query: QueryType): Promise<DeleteResponse | any> {
     return new Promise(res => res())
   }
-  async create<T extends ClassConstructor>(model: T, data: ConstructorParameters<T>): Promise<CreateResponse | undefined> {
+  async create<T extends ClassConstructor>(model: T, data: ConstructorParameters<T>): Promise<CreateResponse | any> {
     return new Promise(res => res())
   }
 }

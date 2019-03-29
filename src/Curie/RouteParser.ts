@@ -65,7 +65,7 @@ export class PugParser extends RouteParser<PugRoute> {
           }, {})
 
           return Object.assign(acc, {[name]: {
-            exec: pug.compile(file),
+            exec: pug.compile(file.replace(/\/\/#.*/gim, '')),
             meta
           }} as LooseObject<PugRoute>)
         },{} as PugRoute))
