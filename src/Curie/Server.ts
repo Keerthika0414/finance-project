@@ -8,6 +8,8 @@ import { Response, CallbackReturnType, ClassConstructor, ConstructorParameters }
 import { loadFilesData, loadFilesDataResponse } from "./helpers/loadFiles";
 import { send } from "./helpers/send";
 import { DBridge } from "./DBridge";
+import { EventEmitter } from "events";
+import { withTime } from "./helpers/withTime";
 
 
 
@@ -19,9 +21,9 @@ export interface ServerOptions {
 
 const __r = path.resolve(__dirname, "./routes")
 
-export class Server {
+export class Server extends EventEmitter {
   server: http.Server
-  listeners: Listener[]
+  hooks: Listener[]
   db: DBridge<any, any> | undefined
   options: ServerOptions
   routeParser: RouteParser 
@@ -33,9 +35,10 @@ export class Server {
   }
 
   constructor(options: Partial<ServerOptions> = {}) {
-    console.log(`[CURIE]> Init: START`)
+    super()
+    console.log(withTime("[CURIE]> Init: START"))
     this.server = http.createServer({}, this.onRequest.bind(this))
-    this.listeners = []
+    this.hooks = []
     this.files = new Map<string, loadFilesDataResponse>()
     this.options = {
       public: options.public || Server.DEFAULT_SERVER_OPTIONS.public,
@@ -47,7 +50,9 @@ export class Server {
 
     this.__InitEvents()
     this.__loadFiles()
-    console.log(`[CURIE]> Init: END`)
+    .then(() => {
+      console.log(withTime("[CURIE]> Init: END"))
+    })
   }
 
   async __loadFiles() {
@@ -101,7 +106,7 @@ export class Server {
     if(!cont) return;
 
     ListenerLoop:
-    for(const l of this.listeners.filter(l => l.__testPath(path))) {
+    for(const l of this.hooks.filter(l => l.__testPath(path))) {
       MethodLoop:
       for(const f of ["onGET", "onPOST"]) {
         const [err, cont] = await (l[f](req, res)) as CallbackReturnType
@@ -133,7 +138,7 @@ export class Server {
 
   mix(port: number) {
     this.server.listen(port, () => {
-      console.log(`[CURIE]> Listening @${port}`)
+      console.log(withTime(`[CURIE]> Listening @${port}`))
     })
   }
 }

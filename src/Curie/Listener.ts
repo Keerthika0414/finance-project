@@ -14,7 +14,7 @@ export class Listener {
     this.server = s
     this.path = path
 
-    this.server.listeners.push(this)
+    this.server.hooks.push(this)
   }
   
   async onGET(
