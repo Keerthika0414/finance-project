@@ -8,7 +8,6 @@ const switchDataType = <T>(x: T) => {
 
 export const send = <T>(res: Response, data: T, headers: LooseObject = {}) => {
   res.writeHead(200)
-  if (!res.headersSent)
-    for(const header in headers) res.setHeader(header, headers[header])
+  if (!res.headersSent) for(const header in headers) res.setHeader(header, headers[header])
   res.write(switchDataType(data), "utf-8")
 }

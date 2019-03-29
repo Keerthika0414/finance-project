@@ -15,6 +15,7 @@
     "@types/node": "^11.11.3",
     "awesome-typescript-loader": "^5.2.1",
     "fs-extra": "^7.0.1",
+    "pg-promise": "^8.6.4",
     "pug": "^2.0.3",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"

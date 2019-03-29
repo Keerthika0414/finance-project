@@ -4,9 +4,10 @@ import { Listener } from "./Listener";
 import { parseQuery } from "./helpers/parseQuery";
 import path from "path"
 import { RouteParser, PugParser } from "./RouteParser";
-import { Response, CallbackReturnType, ClassConstructor } from "./types";
+import { Response, CallbackReturnType, ClassConstructor, ConstructorParameters } from "./types";
 import { loadFilesData, loadFilesDataResponse } from "./helpers/loadFiles";
 import { send } from "./helpers/send";
+import { DBridge } from "./DBridge";
 
 
 
@@ -21,6 +22,7 @@ const __r = path.resolve(__dirname, "./routes")
 export class Server {
   server: http.Server
   listeners: Listener[]
+  db: DBridge<any, any> | undefined
   options: ServerOptions
   routeParser: RouteParser 
   files: Map<string, loadFilesDataResponse>
@@ -41,7 +43,7 @@ export class Server {
       routeParser: PugParser
     }
 
-    this.routeParser = new this.options.routeParser(this.options.routes)
+    this.routeParser = new this.options.routeParser(this.options.routes, this)
 
     this.__InitEvents()
     this.__loadFiles()
@@ -110,11 +112,21 @@ export class Server {
     return res.end()
   }
 
+  hookupDBridge(database: ClassConstructor<DBridge<any, any>>, ...args: any[]): CallbackReturnType {
+    if(this.db) return [null, false]
+    try {
+      this.db = new database(...args)
+      return [null, true]
+    } catch (err) {
+      return [err, false]
+    }
+  }
+
   checkForFile(path: string, res: Response) {
     const f = this.files.get(path)
     if(!f) return [new Error(`File not found: ${path}`), true]
     if (!res.writable) return [new Error("Response not writable"),false]
-    send(res, f.buffer, { "Content-Type": f.mime })
+    send(res, f.buffer, { "Content-Type": f.mime, "charset": "utf-8"})
     res.end()
     return [null, false]
   }

@@ -5,6 +5,8 @@ export interface LooseObject<T = any> {
   [key: string]: T
 }
 
+export type ConstructorParameters<T extends new (...args: any) => any> = T extends new (...args: infer P) => any ? P : never;
+
 export type ClassConstructor<T = any> = new(...args: any[]) => T
 
 export interface Request extends http.IncomingMessage {
