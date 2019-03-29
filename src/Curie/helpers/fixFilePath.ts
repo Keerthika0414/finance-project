@@ -1,0 +1,1 @@
+export const fixFilePath = (path: string) => path.replace(/^\/{2,}/, '/')

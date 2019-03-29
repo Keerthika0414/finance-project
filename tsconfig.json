@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"target": "ES2016",
+		"module": "commonjs",
+		"lib": ["esnext.asynciterable", "dom", "es2015", "esnext"],
+		"jsx": "react",
+		"rootDir": "./",
+		"removeComments": true,
+		"strict": true,
+		"alwaysStrict": true,
+		"esModuleInterop": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true
+	}
+}
