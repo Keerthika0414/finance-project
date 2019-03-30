@@ -1,11 +1,10 @@
 import http from "http"
-import cookies from 'cookies'
-import { CallbackReturnType, Response, LooseObject, RequestCallback } from "./types";
+import { CallbackReturnType, Response, LooseObject } from "./types";
 import { Server } from "./Server";
 
 const DEFAULT_RETURN_VALUE: CallbackReturnType = [null, true]
 
-export class Listener {
+export abstract class Listener {
   server: Server
   path: string | RegExp
   [key: string]: any
@@ -30,7 +29,7 @@ export class Listener {
       return DEFAULT_RETURN_VALUE
     }
 
-  render(res: Response, route: string, locals: LooseObject) {
+  render(res: Response, route: string, locals: LooseObject = {}) {
     if(!res.headersSent)
       return this.server.routeParser.render(res, route, locals)
   }

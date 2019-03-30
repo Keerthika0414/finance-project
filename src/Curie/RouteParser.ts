@@ -1,10 +1,8 @@
-import { Response, LooseObject, CallbackReturnType } from "./types";
+import { Response, LooseObject, CallbackReturnType, Executable } from "./types";
 import pug from "pug"
 import path from "path"
 import fs from "fs-extra"
 import { Server } from "./Server";
-
-type Executable<T> = (arg: LooseObject) => T
 
 export abstract class RouteParser<RouteType = any> {
   path: string
@@ -16,8 +14,8 @@ export abstract class RouteParser<RouteType = any> {
     this.server = server
   }
   abstract compile(route: string): CallbackReturnType
-  abstract compileAll(): CallbackReturnType
-  abstract async render(res: Response, route: string, locals: LooseObject): Promise<CallbackReturnType>
+  abstract async compileAll(): Promise<CallbackReturnType>
+  abstract async render(res: Response, route: string, locals?: LooseObject): Promise<CallbackReturnType>
 }
 
 interface PugRoute {
@@ -44,22 +42,24 @@ export class PugParser extends RouteParser<PugRoute> {
     }
   }
 
-  compileAll() {
+  async compileAll() {
     let err = null
-    const out = fs.readdir(this.path)
+    await fs.readdir(this.path)
       .then(names => names.filter(x => /\.pug$/.test(x)))
-      .then(filtered => filtered.reduce(
-        (acc, x) => {
+      .then(filtered => filtered.reduce((acc, x) => {
           const found_name = /^([\w\d-_]+)/g.exec(x)
           const name = found_name 
             ? found_name[0]
             : x
-          const r = /(\$\w+:\s*.+)/gmi
           const file = fs.readFileSync(path.resolve(this.path, x)).toString("utf-8")
+          const r = /(\$\w+:\s*.+)/gmi
           const meta_data = file.match(r)
 
+          // Resolving variables available in templates
           const meta = (meta_data||[]).reduce((acc, x) => {
+            // Variable name
             const v = (x.match(/\$(\w+)/i) as any as string[])[1]
+            // Variable value
             const val = (x.match(/:(.*)/i) as any as string[])[1].trim()
             return Object.assign(acc, {[v]: val})
           }, {})
@@ -68,19 +68,17 @@ export class PugParser extends RouteParser<PugRoute> {
             exec: pug.compile(file.replace(/\/\/#.*/gim, '')),
             meta
           }} as LooseObject<PugRoute>)
-        },{} as PugRoute))
-      .catch(e => err = e)
-
-    out.then(xs => this.routes = Object.assign(this.routes, xs))
+        }, {} as PugRoute))
+      .then(xs => this.routes = Object.assign(this.routes, xs))
       .catch(e => err = e)
     return [err, !err] as CallbackReturnType
   }
 
-  async render(res: Response, route: string, locals: LooseObject) {
+  async render(res: Response, route: string, locals: LooseObject = {}) {
     const ex = this.routes[route]
     if(ex) {
       let err = null
-      !res.headersSent&&res.setHeader("Content-Type", "text/html")
+      res.setHeader("Content-Type", "text/html")
       for(const v_key in ex.meta) {
         if(v_key in locals) continue
         if(this.server.db) locals[v_key] = await this.server.db.get(ex.meta[v_key])
@@ -88,12 +86,9 @@ export class PugParser extends RouteParser<PugRoute> {
       res.write(ex.exec({
         ...locals,
         db: this.server.db
-      }), e => {
-        err = e
-      })
+      }))
       return [err, !err] as CallbackReturnType
-    } else {
-      throw new Error(`[PugParser]> Route "${route}" not found`)
-    }
+    } 
+    throw new Error(`[PugParser]> Route "${route}" not found`)
   }
 }

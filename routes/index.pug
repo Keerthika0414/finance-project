@@ -1,6 +1,4 @@
-//#START
 //# $posts: SELECT * FROM posts 
-//#END
 
 <!DOCTYPE html>
 html(lang="en")
@@ -12,6 +10,6 @@ html(lang="en")
     script(src="/js/index.js")
     link(rel="stylesheet", href="/css/index.css")
   body
-    for a in posts
-      h2= a.title
-      p= a.body
+    for p in posts
+      h2= p.title
+      p= p.body

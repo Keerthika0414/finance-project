@@ -1,0 +1,8 @@
+{
+  "server": "./server.ts",
+  "public": "../public",
+  "routes": "../routes",
+  "listeners": ["./listeners", "list"],
+  "middleware": ["./middleware", "mdw"],
+  "database": "database.ts"
+}

@@ -1,11 +1,8 @@
 import { LooseObject, ClassConstructor, ConstructorParameters } from "./types";
 import _pgp from "pg-promise"
 import { Server } from "./Server";
-const pgp = _pgp({
-  query(e) {
-    console.dir(e, {colors: true, depth: 1})
-  }
-})
+import { c_log } from "./helpers/log";
+import { withTime } from "./helpers/withTime";
 
 interface Response {
   n: number
@@ -48,6 +45,11 @@ export class PostDBridge extends DBridge<_pgp.IDatabase<{}>, string> {
 
   constructor(cn: string, server?: Server) {
     super(cn, server)
+    const pgp = _pgp({
+      query(e) {
+        c_log(withTime(`[PostDBridge]> ${e.query}`))
+      }
+    })
     this.db = pgp(cn)
     this.cache = new Map()
   }
