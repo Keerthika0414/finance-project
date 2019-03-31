@@ -1,7 +1,7 @@
 import { Listener, Request, Response, CallbackReturnType } from "../Curie";
-import s from "../server"
+import { hookup } from "../Curie/@core";
 
-@s.hookup("/")
+@hookup("/")
 export default class index extends Listener {
   async onGET(req: Request, res: Response) {
     await this.render(res, "index", {})

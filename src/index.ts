@@ -1,6 +1,8 @@
 import { initApp } from "./Curie/@core"
+import { Server } from "./Curie";
 
-async function bootstrap() {
-  await initApp()
-}
-bootstrap()
+(async () => {
+  await initApp(new Server({
+    port: 8000
+  }))
+})()

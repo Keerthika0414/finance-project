@@ -1,5 +1,5 @@
 import { PostDBridge } from "./Curie";
-import s from "./server"
+import { database } from "./Curie/@core";
 
-@s.database("postgres://postgres:postgres@127.0.0.1:5432/postgres")
-export default class database extends PostDBridge {}
+@database("postgres://postgres:postgres@127.0.0.1:5432/postgres")
+export default class db extends PostDBridge {}

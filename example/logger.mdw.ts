@@ -1,6 +1,5 @@
-import { CallbackReturnType, Middleware, withTime, Request, Response } from "../Curie";
-import { c_log } from "../Curie/helpers/log";
-import { use } from "../Curie/@core";
+import { CallbackReturnType, Middleware, withTime, Request, Response, c_log } from "curie-server";
+import { use } from "curie-server/dist/@core";
 
 @use()
 export default class x extends Middleware {

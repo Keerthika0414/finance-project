@@ -6,7 +6,6 @@ Curie-server depends on a config file - `curie.config.js`, which has to exist in
 It has to be in the form of:
 ```json
 {
-  "server": "path_to_server_file",
   "public": "path_to_public_dir",
   "routes": "path_to_routes_dir",
   "listeners": ["path_to_listeners_dir", "listener_file_extension"],
@@ -21,7 +20,9 @@ As you might already know from [the section above](#config), curie-server highly
 ```
 |public/
 |--css/
+|----main.css
 |--js/
+|----main.js
 |routes/
 |--index.pug
 |listeners/
@@ -30,7 +31,6 @@ As you might already know from [the section above](#config), curie-server highly
 |--logger.mdw.ts
 |index.ts
 |database.ts
-|server.ts
 |curie.config.json
 ```
 
@@ -38,38 +38,29 @@ As you might already know from [the section above](#config), curie-server highly
 The main file is the file, which is responsible for starting your application. As it's not specified in [the config file](#config), you're responcible for choosing it.
 ```typescript
 import { initApp } from "curie-server/dist/@core"
-initApp()
-```
-
-### Server file
-While [the main file](#main_file) is the starting point of your application, the server file is it's heart. It contains your `Server Instance`, which will be used in different files (i.e middleware, listeners). It should look something like this:
-```typescript
-import { Server } from "curie-server"
-
-export default new Server({
+initApp(new Server({
   port: 8000
-})
+}))
 ```
 
 ### Database file
 The database file is responcible for connecting with your database. It should export a class which extends the [DBridge]() class. You may create your own class or use the so-called out of the box PotgreSQL DBridge.
-
 It should look something like it:
 ```typescript
 import { PostDBridge } from "curie-server"
-import server from "./server"
+import { database } from "curie-server/dist/@core"
 
-@server.database("postgres://postgres:postgres@127.0.0.1:5432/postgres")
+@database("postgres://postgres:postgres@127.0.0.1:5432/postgres")
 export default class extends PostDBridge {}
 ```
 
 ### Listeners
-Listeners are responsible for responding to incoming http requests. Both their location and extension are specified in [the config](#config) file. A listener should extends [the Listener class](#listener). Example:
+Listeners are responsible for responding to incoming http requests. Both their location and extension are specified in [the config](#config) file. A listener should extend [the Listener class](#listener), implement `onGET` and/or `onPOST` method(s), such that they return [CallbackReturnType](#callback_return_type). Example:
 ```typescript
 import c, { Listener } from "curie-server";
-import server from "../server"
+import { hookup } from "curie-server/dist/@core"
 
-@server.hookup("/")
+@hookup("/")
 export default class extends Listener {
   async onGET(req: c.Request, res: c.Response): c.CallbackReturnType {
     this.server.routeParser.render(res, "index")
@@ -79,21 +70,85 @@ export default class extends Listener {
 ``` 
 
 ### Middleware
+Middleware is responcible for interrupting incoming requests and can even reject them. Middleware should extends [the Middleware]() class and return [the CallbackReturnType](#callback_return_type). It should look something like this:
+```typescript
+import { CallbackReturnType, Middleware, withTime, Request, Response, c_log } from "curie-server";
+import { use } from "curie-server/dist/@core";
+
+@use()
+export default class extends Middleware {
+  // @ts-ignore
+  async intercept(req: Request, res: Response) {
+    c_log(withTime(`[LOGGER]> ${req.method}: ${req.url || ""}`))
+    return [null, true] as CallbackReturnType
+  }
+}
+```
+
 ### Routes
+Routes are themplates rendered by [the RouteParser](#route_parser). Out of the box you get the `PugParser`, which compiles `.pug` files and allows you to query item from the database (template: `//# $<variable_name>: <query>`).
+```pug
+//# $posts: SELECT * FROM posts
+
+<!DOCTYPE html>
+html(lang="en")
+  head
+  body
+    ul.posts
+      for post in posts
+        li.posts__post
+          h2.posts__post__title= post.title
+          p.posts__post__body= post.body
+```
+
+### Single file approach
+While I highly advise you to take the advatnage of the multi file structure, around which the `curie-server` was built, you can fit everything into a single file.
+```typescript
+import { initApp, database, hookup, use } from "curie-server/dist/@core";
+import c, { Server, PostDBridge, Listener, Middleware, c_log, withTime } from "curie-server";
+
+(async () => {
+  await initApp(new Server({
+    port: 8000
+  }))
+
+  @database("postgres://postgres:postgres@127.0.0.1:5432/postgres")
+  class Db extends PostDBridge {}
+
+  @hookup("/")
+  class IndexListener extends Listener {
+    async onGET(req: c.Request, res: c.Response) {
+      await this.render(res, "index")
+      return [null, false] as c.CallbackReturnType
+    }
+  }
+  @use()
+  class Logger extends Middleware {
+    // @ts-ignore
+    async intercept(req: Request, res: Response) {
+      c_log(withTime(`[LOGGER]> ${req.method}: ${req.url || ""}`))
+      return [null, true] as c.CallbackReturnType
+    }
+  }
+})()
+```
 
 ## Classes
 ### <div id="dbridge">DBridge</div>
 ```typescript
+@database("<connection_uri>")
 class MyDBridge extends DBridge<DBInterface, QueryType> {
   async get(query: QueryType): Promise<LooseObject[] | any> {
-    return new Promise(res => res())
+    // Fetch the query! Good boy!
+    return getResponse
   }
   async update(query: QueryType): Promise<UpdateResponse | any> {
-    return new Promise(res => res())
+    // Update something...
+    return updateResponse
   }
   async delete(query: QueryType): Promise<DeleteResponse | any> {
     // Delete something...
-    return creationResponse  
+    return deletionResponse  
   }
   async create<T extends ClassConstructor>(model: T, data: ConstructorParameters<T>): Promise<CreateResponse | any> {
     // Create something...
@@ -103,7 +158,7 @@ class MyDBridge extends DBridge<DBInterface, QueryType> {
 ```
 ### <div id="listener">Listener</div>
 ```typescript
-@server.hookup("/")
+@hookup("/")
 class IndexListener extends Listener {  
   async onGET(
     req: http.IncomingMessage, 
@@ -120,8 +175,17 @@ class IndexListener extends Listener {
 }
 ```
 ### Middleware
+```typescript
+@use()
+export default class Intercepter extends Middleware {
+  async intercept(req: Request, res: Response) {
+    // Do something
+    return [null, true] as CallbackReturnType
+  }
+}
+```
 
-## Interfaces
+## Interfaces and types
 ### ServerOptions
 It is a configuration object passed to the Server constructor. 
 ```typescript
@@ -138,4 +202,10 @@ const DefaultOptions {
   routes: "FROM_CONFIG_FILE",
   public: "FROM_CONFIG_FILE"
 }
+```
+
+### <div id="callback_return_type">CallbackReturnType</div>
+CallbackReturnType is a value returned by many `curie-server` functions, but is used especially in [the Listener]() and [the Middleware]() classes. The first part of the tuple is the `Error`, and the 2nd one is the `ShouldContinue` boolean, which tells the inner loop whether is should send the Response to the client or continue.
+```typescript
+type CallbackReturnType = [Error | null, boolean]
 ```

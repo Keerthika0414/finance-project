@@ -1,3 +1,5 @@
+//# $posts: SELECT * FROM posts
+
 <!DOCTYPE html>
 html(lang="en")
   head
@@ -13,6 +15,7 @@ html(lang="en")
         overflow: hidden;
         display: flex;
         justify-content: center;
+        font-family: monospace;
       }
       figure {
         height: auto;
@@ -25,10 +28,38 @@ html(lang="en")
         text-align: center;
         text-transform: uppercase;
         color: #2c2c2c;
-        font-family: monospace;
         font-size: 4rem;
+      }
+
+      .posts {
+        width: 50vw;
+        margin: auto;
+        list-style: none;
+      }
+
+      .posts__post {
+        width: 100%;
+        min-height: 10vh;
+      }
+
+      .posts__post__title {
+        font-size: 2rem;
+        color: #1b1b1b;
+        text-transform: uppercase;
+        margin-bottom: 0;
+        margin-top: 3vh;
+      }
+
+      .posts__post__body {
+        font-size: 1rem;
+        color: #2c2c2c;
       }
   body
     figure
       img(src="http://bi.gazeta.pl/im/02/90/10/z17367810V,Maria-Sklodowska-Curie-w-1903-r--Za-najszczesliwsz.jpg", alt="")
       figcaption Hello there
+    ul.posts
+      for post in posts
+        li.posts__post
+          h2.posts__post__title= post.title
+          p.posts__post__body= post.body

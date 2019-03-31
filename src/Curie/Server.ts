@@ -13,7 +13,6 @@ import { withTime } from "./helpers/withTime";
 import { c_log } from "./helpers/log";
 import { Middleware } from "./Middleware";
 import { CurieConfig } from "./@core";
-import { LooseObject } from "../../dist/types";
 
 
 export interface ServerOptions {

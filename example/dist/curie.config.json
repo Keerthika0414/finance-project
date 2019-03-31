@@ -1,0 +1,7 @@
+{
+  "public": "../public/",
+  "routes": "../routes/",
+  "listeners": ["./", "list.js"],
+  "middleware": ["./", "mdw.js"],
+  "database": "./database.js"
+}

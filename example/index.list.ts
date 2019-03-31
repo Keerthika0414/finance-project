@@ -1,10 +1,10 @@
 import c, { Listener } from "curie-server";
-import server from "./server"
+import { hookup } from "curie-server/dist/@core"
 
-@server.hookup("/")
+@hookup("/")
 export default class extends Listener {
   async onGET(req: c.Request, res: c.Response) {
-    this.server.routeParser.render(res, "index")
+    await this.render(res, "index")
     return [null, false] as c.CallbackReturnType
   }
 }
