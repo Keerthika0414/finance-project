@@ -1,0 +1,8 @@
+{
+  "server": "./server",
+  "public": "./public/",
+  "routes": "./routes/",
+  "listeners": ["./", "list"],
+  "middleware": ["./", "mdw"],
+  "database": "./database"
+}

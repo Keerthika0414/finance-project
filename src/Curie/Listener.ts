@@ -12,8 +12,6 @@ export abstract class Listener {
   constructor(s: Server, path: string | RegExp) {
     this.server = s
     this.path = path
-
-    this.server.hooks.push(this)
   }
   
   async onGET(

@@ -13,6 +13,7 @@ import { withTime } from "./helpers/withTime";
 import { c_log } from "./helpers/log";
 import { Middleware } from "./Middleware";
 import { CurieConfig } from "./@core";
+import { LooseObject } from "../../dist/types";
 
 
 export interface ServerOptions {
@@ -48,8 +49,8 @@ export class Server extends EventEmitter {
     this.middleware = []
     this.files = new Map<string, loadFilesDataResponse>()
     this.options = {
-      public: options.public || Server.DEFAULT_SERVER_OPTIONS.public,
-      routes: options.routes || Server.DEFAULT_SERVER_OPTIONS.routes,
+      public: "",
+      routes: "",
       routeParser: PugParser,
       port: options.port || Server.DEFAULT_SERVER_OPTIONS.port
     }

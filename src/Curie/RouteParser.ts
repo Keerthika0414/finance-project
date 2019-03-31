@@ -78,7 +78,7 @@ export class PugParser extends RouteParser<PugRoute> {
     const ex = this.routes[route]
     if(ex) {
       let err = null
-      res.setHeader("Content-Type", "text/html")
+      !res.headersSent&&res.setHeader("Content-Type", "text/html")
       for(const v_key in ex.meta) {
         if(v_key in locals) continue
         if(this.server.db) locals[v_key] = await this.server.db.get(ex.meta[v_key])

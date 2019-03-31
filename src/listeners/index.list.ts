@@ -1,4 +1,4 @@
-import { Listener, Request, Response, CallbackReturnType, Server } from "../Curie";
+import { Listener, Request, Response, CallbackReturnType } from "../Curie";
 import s from "../server"
 
 @s.hookup("/")
