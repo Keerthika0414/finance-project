@@ -21,6 +21,7 @@ const send_1 = require("./helpers/send");
 const events_1 = require("events");
 const withTime_1 = require("./helpers/withTime");
 const log_1 = require("./helpers/log");
+const parseBody_1 = require("./helpers/parseBody");
 class Server extends events_1.EventEmitter {
     constructor(options = {}) {
         super();
@@ -30,8 +31,8 @@ class Server extends events_1.EventEmitter {
         this.middleware = [];
         this.files = new Map();
         this.options = {
-            public: options.public || Server.DEFAULT_SERVER_OPTIONS.public,
-            routes: options.routes || Server.DEFAULT_SERVER_OPTIONS.routes,
+            public: "",
+            routes: "",
             routeParser: RouteParser_1.PugParser,
             port: options.port || Server.DEFAULT_SERVER_OPTIONS.port
         };
@@ -54,7 +55,7 @@ class Server extends events_1.EventEmitter {
             this.hooks.push(inst);
         };
     }
-    use(target) { this.middleware.push(new target()); }
+    use(target) { this.middleware.push(new target(this)); }
     database(cn) {
         return (target) => {
             this.db = new target(cn, this);
@@ -98,9 +99,11 @@ class Server extends events_1.EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             const path = (__req.url || '').replace(/^\/+/, '/');
             const cs = cookies_1.default(__req, __res);
+            const body = yield parseBody_1.parseBody(__req, "JSON");
             const req = Object.assign(__req, {
                 query: parseQuery_1.parseQuery(path),
-                cookies: cs
+                cookies: cs,
+                body
             });
             const res = Object.assign(__res, {
                 cookies: cs
@@ -116,12 +119,10 @@ class Server extends events_1.EventEmitter {
             if (!cont)
                 return;
             ListenerLoop: for (const l of this.hooks.filter(l => l.__testPath(path))) {
-                MethodLoop: for (const f of ["onGET", "onPOST"]) {
-                    const [err, cont] = yield (l[f](req, res));
-                    err && console.error(err);
-                    if (!cont)
-                        break;
-                }
+                const [err, cont] = yield l[`on${req.method || "GET"}`](req, res);
+                err && console.error(err);
+                if (!cont)
+                    break;
             }
             return res.end();
         });

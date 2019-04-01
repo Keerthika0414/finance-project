@@ -6,7 +6,6 @@ import { use } from "../Curie/@core";
 export default class x extends Middleware {
   // @ts-ignore
   async intercept(req: Request, res: Response) {
-    c_log(withTime(`[LOGGER]> ${req.method}: ${req.url || ""}`))
     return [null, true] as CallbackReturnType
   }
 }

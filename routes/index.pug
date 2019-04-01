@@ -1,4 +1,4 @@
-//# $posts: SELECT * FROM posts 
+//# $msgs: SELECT * FROM messages ORDER BY date ASC
 
 <!DOCTYPE html>
 html(lang="en")
@@ -7,9 +7,16 @@ html(lang="en")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     meta(http-equiv="X-UA-Compatible", content="ie=edge")
     title Document
-    script(src="/js/index.js")
-    link(rel="stylesheet", href="/css/index.css")
+    link(rel="stylesheet", href="/css/main.css")
   body
-    for p in posts
-      h2= p.title
-      p= p.body
+    ol.msgs
+      for msg in msgs
+        li.msgs__item
+          h2.msgs__item__author= `${msg.author}`
+          p.msgs__item__body= msg.body
+    form(action="/", method="post").form
+      label(for="body").form__cell Body
+        input#body(type="text", name="body" required).form__cell__input
+      label(for="author").form__cell Author
+        input#author(type="text", name="author" required).form__cell__input
+      input(type="submit", value="post").form__btn

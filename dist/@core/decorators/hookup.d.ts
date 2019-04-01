@@ -1,0 +1,1 @@
+export declare const hookup: (path: string) => (target: import("../../../../../../../../../Users/xelox/Projects/Node/Curie/src/Curie/types").ClassConstructor<import("../../../../../../../../../Users/xelox/Projects/Node/Curie/src/Curie/Listener").Listener>) => void;

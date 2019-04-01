@@ -42,6 +42,7 @@ interface CacheItem {
 export class PostDBridge extends DBridge<_pgp.IDatabase<{}>, string> {
   db: _pgp.IDatabase<{}>
   cache: Map<string, CacheItem>
+  cache_time: number = 5*60*1000
 
   constructor(cn: string, server?: Server) {
     super(cn, server)
@@ -58,7 +59,7 @@ export class PostDBridge extends DBridge<_pgp.IDatabase<{}>, string> {
     if(found) {
       const now = new Date()
       // @ts-ignore
-      if(Math.abs(found.date - now) < 5*60*1000) {
+      if(Math.abs(found.date - now) < this.cache_time) {
         return found.data
       }
     }

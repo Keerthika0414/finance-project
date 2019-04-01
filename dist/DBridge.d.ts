@@ -26,6 +26,7 @@ interface CacheItem {
 export declare class PostDBridge extends DBridge<_pgp.IDatabase<{}>, string> {
     db: _pgp.IDatabase<{}>;
     cache: Map<string, CacheItem>;
+    cache_time: number;
     constructor(cn: string, server?: Server);
     get<T>(query: string): Promise<any>;
 }

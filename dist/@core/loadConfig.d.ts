@@ -1,5 +1,4 @@
 export interface CurieConfig {
-    server: string;
     public: string;
     routes: string;
     listenres: [string, string];

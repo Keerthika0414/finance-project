@@ -43,6 +43,7 @@ exports.DBridge = DBridge;
 class PostDBridge extends DBridge {
     constructor(cn, server) {
         super(cn, server);
+        this.cache_time = 5 * 60 * 1000;
         const pgp = pg_promise_1.default({
             query(e) {
                 log_1.c_log(withTime_1.withTime(`[PostDBridge]> ${e.query}`));
@@ -56,7 +57,7 @@ class PostDBridge extends DBridge {
             const found = this.cache.get(query);
             if (found) {
                 const now = new Date();
-                if (Math.abs(found.date - now) < 5 * 60 * 1000) {
+                if (Math.abs(found.date - now) < this.cache_time) {
                     return found.data;
                 }
             }

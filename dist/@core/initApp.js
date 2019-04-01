@@ -14,18 +14,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const loadConfig_1 = require("./loadConfig");
 const path_1 = __importDefault(require("path"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
-exports.initApp = () => __awaiter(this, void 0, void 0, function* () {
+exports.initApp = (server) => __awaiter(this, void 0, void 0, function* () {
     const config = loadConfig_1.loadConfig();
-    const state = {};
-    const server = yield require(path_1.default.resolve(config.root, config.server)).default.init(config);
-    require(path_1.default.resolve(config.root, config.database));
+    global.__curieServer = yield server.init(config);
+    if (config.database)
+        global.__curieDatabase = require(path_1.default.resolve(config.root, config.database)).default;
+    const promises = [];
     for (const [dir, ext, key] of ["listeners", "middleware"].map(x => config[x].concat(x))) {
-        state[key] = yield fs_extra_1.default.readdir(path_1.default.resolve(config.root, dir))
-            .then(f_names => f_names.reduce((modules, x) => {
-            if (new RegExp(`.${ext}`, "i").test(x))
+        dir && ext && promises.push(fs_extra_1.default.readdir(path_1.default.resolve(config.root, dir)).then(f_names => f_names.reduce((modules, x) => {
+            if (new RegExp(`.${ext}$`, "i").test(x))
                 modules.push(require(path_1.default.resolve(config.root, dir, x)));
             return modules;
-        }, []));
+        }, [])));
     }
+    return Promise.all(promises);
 });
 //# sourceMappingURL=initApp.js.map

@@ -55,6 +55,7 @@ export declare type ClassConstructor<T = any> = new (...args: any[]) => T;
 export interface Request extends http.IncomingMessage {
     query: LooseObject<string>;
     cookies: cookies;
+    body: LooseObject;
 }
 export interface Response extends http.ServerResponse {
     cookies: cookies;

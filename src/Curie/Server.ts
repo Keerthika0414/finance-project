@@ -13,6 +13,7 @@ import { withTime } from "./helpers/withTime";
 import { c_log } from "./helpers/log";
 import { Middleware } from "./Middleware";
 import { CurieConfig } from "./@core";
+import { parseBody } from "./helpers/parseBody";
 
 
 export interface ServerOptions {
@@ -82,7 +83,7 @@ export class Server extends EventEmitter {
     }
   }
 
-  use(target: ClassConstructor<Middleware>){this.middleware.push(new target())}
+  use(target: ClassConstructor<Middleware>){this.middleware.push(new target(this))}
 
   database(cn: string) {
     return (target: ClassConstructor<DBridge<any, any>>) => {
@@ -126,14 +127,18 @@ export class Server extends EventEmitter {
   private async onRequest(__req: http.IncomingMessage, __res: http.ServerResponse) {
     const path = (__req.url || '').replace(/^\/+/, '/')
     const cs = cookies(__req, __res)
+    const body = await parseBody(__req, "JSON")
+
     const req = Object.assign(__req, {
       query: parseQuery(path),
-      cookies: cs
+      cookies: cs,
+      body
     }) as Request
-
+    
     const res = Object.assign(__res, {
       cookies: cs
     }) as Response
+    
 
     MiddlewareLoop:
     for(const m of this.middleware) {
@@ -149,12 +154,9 @@ export class Server extends EventEmitter {
 
     ListenerLoop:
     for(const l of this.hooks.filter(l => l.__testPath(path))) {
-      MethodLoop:
-      for(const f of ["onGET", "onPOST"]) {
-        const [err, cont] = await (l[f](req, res)) as CallbackReturnType
-        err&&console.error(err)
-        if(!cont) break
-      }
+      const [err, cont] = await l[`on${req.method || "GET"}`](req, res);
+      err&&console.error(err)
+      if(!cont) break
     }
     return res.end()
   }

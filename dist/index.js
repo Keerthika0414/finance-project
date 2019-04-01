@@ -11,4 +11,6 @@ __export(require("./Middleware"));
 __export(require("./helpers/send"));
 __export(require("./helpers/withTime"));
 __export(require("./helpers/loadFiles"));
+__export(require("./helpers/log"));
+__export(require("./helpers/parseBody"));
 //# sourceMappingURL=index.js.map

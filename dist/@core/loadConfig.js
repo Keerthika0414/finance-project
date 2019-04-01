@@ -7,6 +7,9 @@ const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 exports.loadConfig = () => {
     const root = path_1.default.dirname(require.main.filename);
-    return Object.assign(fs_extra_1.default.readJSONSync(path_1.default.resolve(root, "curie.config.json"), { encoding: "utf-8" }), { root });
+    const config = Object.assign(fs_extra_1.default.readJSONSync(path_1.default.resolve(root, "curie.config.json"), { encoding: "utf-8" }), { root });
+    global.__curieRoot = root;
+    global.__curieConfig = config;
+    return config;
 };
 //# sourceMappingURL=loadConfig.js.map
