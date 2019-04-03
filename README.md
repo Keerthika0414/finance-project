@@ -2,7 +2,7 @@
 A modular Node.js http/1.0 framework
 
 ## <div id="config">Config</div>
-Curie-server depends on a config file - `curie.config.js`, which has to exist in the same directory as the main file (i.e `index.ts`).
+Curie-server accepts an optional config file - `curie.config.js`, which has to exist in the same directory as the main file (i.e `index.ts`).
 It has to be in the form of:
 ```json
 {
@@ -14,6 +14,7 @@ It has to be in the form of:
 }
 ```
 **Keep in mind that all the paths are relative to the `curie.config.js` file**
+But if you don't create a config file, `InitApp({...})` will either take the config from the default options or it's parameters. 
 
 ## <div id="file_structure">File structure</div>
 As you might already know from [the section above](#config), curie-server highly depends on the file structure. An example file structure:
@@ -38,9 +39,14 @@ As you might already know from [the section above](#config), curie-server highly
 The main file is the file, which is responsible for starting your application. As it's not specified in [the config file](#config), you're responcible for choosing it.
 ```typescript
 import { initApp } from "curie-server/dist/@core"
-initApp(new Server({
-  port: 8000
-}))
+initApp({
+  port: 8000,
+  public: "../public",
+  routes: "../routes",
+  listeners: ["./listeners", "list.[jt]s"],
+  middleware: ["./middleware", "mdw.[jt]s"],
+  database: ""
+})
 ```
 
 ### Database file
@@ -108,9 +114,14 @@ import { initApp, database, hookup, use } from "curie-server/dist/@core";
 import c, { Server, PostDBridge, Listener, Middleware, c_log, withTime } from "curie-server";
 
 (async () => {
-  await initApp(new Server({
-    port: 8000
-  }))
+  await initApp({
+   port: 8000,
+   public: "../public",
+   routes: "../routes",
+   listeners: ["./listeners", "list.[jt]s"],
+   middleware: ["./middleware", "mdw.[jt]s"],
+   database: ""
+  })
 
   @database("postgres://postgres:postgres@127.0.0.1:5432/postgres")
   class Db extends PostDBridge {}
@@ -124,7 +135,6 @@ import c, { Server, PostDBridge, Listener, Middleware, c_log, withTime } from "c
   }
   @use()
   class Logger extends Middleware {
-    // @ts-ignore
     async intercept(req: Request, res: Response) {
       c_log(withTime(`[LOGGER]> ${req.method}: ${req.url || ""}`))
       return [null, true] as c.CallbackReturnType
@@ -186,6 +196,21 @@ export default class Intercepter extends Middleware {
 ```
 
 ## Interfaces and types
+### Request
+```typescript
+interface Request extends http.IncomingMessage {
+  query: LooseObject<string>
+  cookies: cookies
+  body: LooseObject
+}
+```
+### Response
+```typescript
+interface Response extends http.ServerResponse {
+  cookies: cookies
+}
+```
+
 ### ServerOptions
 It is a configuration object passed to the Server constructor. 
 ```typescript
