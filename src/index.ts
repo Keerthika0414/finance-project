@@ -1,8 +1,18 @@
-import { initApp } from "./Curie/@core"
-import { Server } from "./Curie";
+import { initApp, database } from "./Curie/@core"
+import { PostDBridge } from "./Curie";
 
 (async () => {
-  await initApp(new Server({
-    port: 8000
-  }))
+  const s = await initApp({
+   port: 8000,
+   public: "../public",
+   routes: "../routes",
+   listeners: ["./listeners", "list.[jt]s"],
+   middleware: ["./middleware", "mdw.[jt]s"],
+   database: ""
+  })
+
+  @database("postgres://postgres:postgres@127.0.0.1:5432/postgres")
+  class x extends PostDBridge {
+    cache_time = 5000
+  }
 })()

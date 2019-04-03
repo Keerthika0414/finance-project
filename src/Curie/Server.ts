@@ -35,9 +35,9 @@ export class Server extends EventEmitter {
   files: Map<string, loadFilesDataResponse>
   middleware: Middleware[]
   static DEFAULT_SERVER_OPTIONS: ServerOptions = {
-    routes: path.resolve(__dirname, "./routes"),
+    routes: "./routes",
     routeParser: PugParser,
-    public: path.resolve(__dirname, "./public"),
+    public: "./public",
     port: 8000
   }
 

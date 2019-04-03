@@ -1,11 +1,13 @@
-import { CallbackReturnType, Middleware, withTime, Request, Response } from "../Curie";
-import { c_log } from "../Curie/helpers/log";
+import { CallbackReturnType, Middleware, Request, Response, initLogger } from "../Curie";
 import { use } from "../Curie/@core";
+
+const logger = initLogger("Logger", "cyanBright")
 
 @use()
 export default class x extends Middleware {
-  // @ts-ignore
+
   async intercept(req: Request, res: Response) {
+    logger(`{${req.method}}: ${req.url}`)
     return [null, true] as CallbackReturnType
   }
 }

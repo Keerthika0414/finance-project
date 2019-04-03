@@ -76,17 +76,16 @@ export class PugParser extends RouteParser<PugRoute> {
 
   async render(res: Response, route: string, locals: LooseObject = {}) {
     const ex = this.routes[route]
-    if(ex) {
+    if(ex&&typeof ex.exec === "function") {
       let err = null
       !res.headersSent&&res.setHeader("Content-Type", "text/html")
       for(const v_key in ex.meta) {
         if(v_key in locals) continue
         if(this.server.db) locals[v_key] = await this.server.db.get(ex.meta[v_key])
       }
-      res.write(ex.exec({
-        ...locals,
+      res.write(ex.exec(Object.assign(locals, {
         db: this.server.db
-      }))
+      })))
       return [err, !err] as CallbackReturnType
     } 
     throw new Error(`[PugParser]> Route "${route}" not found`)

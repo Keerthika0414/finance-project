@@ -29,7 +29,7 @@ export abstract class DBridge<DBType, QueryType> {
   async delete(query: QueryType): Promise<DeleteResponse | any> {
     return new Promise(res => res())
   }
-  async create<T extends ClassConstructor>(model: T, data: ConstructorParameters<T>): Promise<CreateResponse | any> {
+  async create<T>(model: ClassConstructor<T>, data: ConstructorParameters<ClassConstructor<T>>): Promise<CreateResponse | any> {
     return new Promise(res => res())
   }
 }
@@ -69,5 +69,14 @@ export class PostDBridge extends DBridge<_pgp.IDatabase<{}>, string> {
       date: new Date()
     })
     return res
+  }
+
+  async create<T extends ClassConstructor>(model: T, data: ConstructorParameters<T>): Promise<CreateResponse | any> {
+    const inst = new model(data)
+    const keys = Object.keys(inst)
+    const query = `INSERT INTO ${model.name} (${keys.join(',')}) VALUES (${keys.map(x => typeof inst[x] === "string" ? "'"+inst[x]+"'" : inst[x]).join(',')})`
+    await this.db.any(query).catch(err => {
+      c_log(withTime(`[PostDBridge]> Query "${query}" returned an error: ${err}`))
+    })
   }
 }

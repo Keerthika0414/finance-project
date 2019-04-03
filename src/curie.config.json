@@ -1,7 +1,0 @@
-{
-  "public": "../public",
-  "routes": "../routes",
-  "listeners": ["./listeners", "list.ts"],
-  "middleware": ["./middleware", "mdw.ts"],
-  "database": "database"
-}
