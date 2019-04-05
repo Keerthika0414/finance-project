@@ -12,7 +12,7 @@ import { PostDBridge } from "./Curie";
   })
 
   @database("postgres://postgres:postgres@127.0.0.1:5432/postgres")
-  class x extends PostDBridge {
+  class _ extends PostDBridge {
     cache_time = 5000
   }
 })()

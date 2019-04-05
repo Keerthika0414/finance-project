@@ -8,8 +8,7 @@ export const parseBody = <T>(req: http.IncomingMessage, outputType = 'string' ||
     body += c
   })
     .on("end", () => {
-      // @ts-ignore
-      resolve(qs.parse(body))
+      resolve(qs.parse(body) as any as T)
     })
     .on("error", rej)
 })

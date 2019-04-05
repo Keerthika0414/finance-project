@@ -1,6 +1,9 @@
 import http from "http"
 import cookies from 'cookies'
 import { Chalk } from "chalk";
+import { ServerOptions } from "./Server"
+import { CurieConfig } from "./@core";
+
 
 export interface LooseObject<T = any> {
   [key: string]: T
@@ -57,8 +60,9 @@ export interface ChalkColors {
 
 export type Executable<T> = (arg: LooseObject) => T
 
-// @ts-ignore
-export type ConstructorParameters<T extends new (...args: any[]) => any> = T extends new (...args: infer P) => any ? P : never;
+export type ServerParams = CurieConfig & ServerOptions
+
+export type ConstructorParameters<T extends ClassConstructor> = T extends new (args: infer P) => any ? P : never;
 
 export type ClassConstructor<T = any> = new(...args: any[]) => T
 
@@ -78,4 +82,4 @@ export type CallbackReturnType = [Error | null, boolean]
 export type RequestCallback = (
   req: Request,
   res: Response,
-  cookies: Cookies) => CallbackReturnType | undefined
+	cookies: Cookies) => CallbackReturnType | undefined

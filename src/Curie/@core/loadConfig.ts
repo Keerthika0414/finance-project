@@ -28,9 +28,8 @@ export const loadConfig = (): CurieConfig => {
   } catch (err) {
     config = {root}
   }
-  // @ts-ignore
+
   global.__curieRoot = root
-  // @ts-ignore
   global.__curieConfig = config
   return config
 }

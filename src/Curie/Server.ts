@@ -4,7 +4,7 @@ import { Listener } from "./Listener";
 import { parseQuery } from "./helpers/parseQuery";
 import path from "path"
 import { RouteParser, PugParser } from "./RouteParser";
-import { Response, CallbackReturnType, ClassConstructor, ConstructorParameters, Request } from "./types";
+import { Response, CallbackReturnType, ClassConstructor, ConstructorParameters, Request, ServerParams } from "./types";
 import { loadFilesData, loadFilesDataResponse } from "./helpers/loadFiles";
 import { send } from "./helpers/send";
 import { DBridge } from "./DBridge";
@@ -41,10 +41,10 @@ export class Server extends EventEmitter {
     port: 8000
   }
 
-  constructor(options: Partial<ServerOptions> = {}) {
+  constructor(options: Partial<ServerParams> = {}) {
     super()
     c_log(withTime("[CURIE]> Init: START"))
-    this.server = http.createServer({}, this.onRequest.bind(this))
+    this.server = http.createServer(this.onRequest.bind(this))
     this.hooks = []
     this.middleware = []
     this.files = new Map<string, loadFilesDataResponse>()
@@ -79,7 +79,6 @@ export class Server extends EventEmitter {
     return (target: ClassConstructor<Listener>) => {
       const inst = new target(this, path)
       this.hooks.push(inst)
-      // return inst
     }
   }
 
@@ -101,6 +100,7 @@ export class Server extends EventEmitter {
   private async __InitEvents() { 
     const stdin = process.openStdin()
     stdin.addListener("data", this.inputHandler.bind(this))
+    
 
     const r = await (this.routeParser&&(this.routeParser.compileAll()))
     if(r&&r[0]) {
@@ -112,8 +112,7 @@ export class Server extends EventEmitter {
     const d = String(_d).trim()
     if(["rs"].some(x => x === d)) return
     ;(function() {
-      // @ts-ignore
-      function print(txt: any, ...args) {
+      function print(txt: any, ...args: any[]) {
         console.dir(txt, { colors: true, depth: 3, ...args })
       }
       try {
