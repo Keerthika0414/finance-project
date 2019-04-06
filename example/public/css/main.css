@@ -1,0 +1,46 @@
+html, body {
+  width: 100vw;
+  height: 100vh;
+  background-color: #eeeeee;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  font-family: monospace;
+}
+figure {
+  height: auto;
+  margin: auto;
+}
+figure > img{
+  width: 30vw;
+}
+figcaption {
+  text-align: center;
+  text-transform: uppercase;
+  color: #2c2c2c;
+  font-size: 4rem;
+}
+
+.posts {
+  width: 50vw;
+  margin: auto;
+  list-style: none;
+}
+
+.posts__post {
+  width: 100%;
+  min-height: 10vh;
+}
+
+.posts__post__title {
+  font-size: 2rem;
+  color: #1b1b1b;
+  text-transform: uppercase;
+  margin-bottom: 0;
+  margin-top: 3vh;
+}
+
+.posts__post__body {
+  font-size: 1rem;
+  color: #2c2c2c;
+}

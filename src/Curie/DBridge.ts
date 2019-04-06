@@ -58,6 +58,7 @@ export class PostDBridge extends DBridge<_pgp.IDatabase<{}>, string> {
     const found = this.cache.get(query)
     if(found) {
       const now = new Date()
+
       if(Math.abs(found.date.getTime() - now.getTime()) < this.cache_time) {
         return found.data
       }

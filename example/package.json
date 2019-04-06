@@ -9,11 +9,12 @@
     "start:js": "node ./dist/index.js",
     "single:js": "node ./dist/single.js",
     "single:ts": "ts-node ./single.ts",
-    "build": "tsc -p ./tsconfig.build.json"
+    "build": "tsc -p ./tsconfig.build.json",
+    "server": "nodemon ./index.ts --exec \"ts-node ./index.ts\" -p ."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "curie-server": "^1.4.2"
+    "curie-server": "^2.1.3"
   }
 }

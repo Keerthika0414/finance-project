@@ -4,7 +4,7 @@ import { Listener } from "./Listener";
 import { parseQuery } from "./helpers/parseQuery";
 import path from "path"
 import { RouteParser, PugParser } from "./RouteParser";
-import { Response, CallbackReturnType, ClassConstructor, ConstructorParameters, Request, ServerParams } from "./types";
+import { Response, CallbackReturnType, ClassConstructor, ConstructorParameters, Request } from "./types";
 import { loadFilesData, loadFilesDataResponse } from "./helpers/loadFiles";
 import { send } from "./helpers/send";
 import { DBridge } from "./DBridge";
@@ -12,15 +12,19 @@ import { EventEmitter } from "events";
 import { withTime } from "./helpers/withTime";
 import { c_log } from "./helpers/log";
 import { Middleware } from "./Middleware";
-import { CurieConfig } from "./@core";
 import { parseBody } from "./helpers/parseBody";
 
 
-export interface ServerOptions {
+export interface ServerParams {
   routes: string,
   routeParser: ClassConstructor<RouteParser>
   public: string
   port: number
+  listeners: [string, string | RegExp]
+  middleware: [string, string | RegExp]
+  database: string,
+  root: string
+  [key: string]: any | any[]
 }
 
 
@@ -28,17 +32,21 @@ export class Server extends EventEmitter {
   server: http.Server
   hooks: Listener[]
   db: DBridge<any, any> | undefined
-  options: ServerOptions
+  options: ServerParams
   // It stops the linter from whining about the routerParser being undefined before .init(), which is called immediately
   // @ts-ignore
   routeParser: RouteParser 
   files: Map<string, loadFilesDataResponse>
   middleware: Middleware[]
-  static DEFAULT_SERVER_OPTIONS: ServerOptions = {
+  static DEFAULT_SERVER_OPTIONS: ServerParams = {
     routes: "./routes",
     routeParser: PugParser,
     public: "./public",
-    port: 8000
+    port: 8000,
+    listeners: ["./", "list.[jt]s"],
+    middleware: ["./", "mdw.[jt]s"],
+    database: '',
+    root: path.dirname((require.main as NodeModule).filename)
   }
 
   constructor(options: Partial<ServerParams> = {}) {
@@ -48,15 +56,10 @@ export class Server extends EventEmitter {
     this.hooks = []
     this.middleware = []
     this.files = new Map<string, loadFilesDataResponse>()
-    this.options = {
-      public: "",
-      routes: "",
-      routeParser: PugParser,
-      port: options.port || Server.DEFAULT_SERVER_OPTIONS.port
-    }
+    this.options = Object.assign(Server.DEFAULT_SERVER_OPTIONS, options)
   }
 
-  init(config: CurieConfig) {
+  init(config: ServerParams) {
     return new Promise(res => {
       this.options.public = path.resolve(config.root, config.public)
       this.options.routes = path.resolve(config.root, config.routes)

@@ -1,10 +1,12 @@
 import { initApp, database, hookup, use } from "curie-server/dist/@core";
-import c, { Server, PostDBridge, Listener, Middleware, c_log, withTime } from "curie-server";
+import c, { PostDBridge, Listener, Middleware, c_log, withTime, Response, Request } from "curie-server";
 
 (async () => {
-  await initApp(new Server({
-    port: 8000
-  }))
+  await initApp({
+    middleware: ["./", "mdw.[tj]s"],
+    listeners: ["./", "list.[tj]s"],
+    database: ''
+  })
 
   @database("postgres://postgres:postgres@127.0.0.1:5432/postgres")
   class Db extends PostDBridge {}
@@ -18,7 +20,6 @@ import c, { Server, PostDBridge, Listener, Middleware, c_log, withTime } from "c
   }
   @use()
   class Logger extends Middleware {
-    // @ts-ignore
     async intercept(req: Request, res: Response) {
       c_log(withTime(`[LOGGER]> ${req.method}: ${req.url || ""}`))
       return [null, true] as c.CallbackReturnType

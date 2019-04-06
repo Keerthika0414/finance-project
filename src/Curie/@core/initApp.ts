@@ -1,16 +1,12 @@
-import { loadConfig, DEFAULT_CURIE_CONFIG } from "./loadConfig"
 import path from "path"
-import { Server } from "../Server"
+import { Server, ServerParams } from "../Server"
 import fs from "fs-extra"
 import { c_log } from "../helpers/log";
 import { withTime } from "../helpers/withTime";
-import { ServerParams } from "../types";
 
 export const initApp = async (_config: Partial<ServerParams>) => {
   const config: ServerParams = Object.assign(
-    Server.DEFAULT_SERVER_OPTIONS, 
-    DEFAULT_CURIE_CONFIG, 
-    loadConfig(),
+    Server.DEFAULT_SERVER_OPTIONS,  
     _config
   );
 
