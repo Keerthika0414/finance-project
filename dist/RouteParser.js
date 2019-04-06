@@ -70,7 +70,7 @@ class PugParser extends RouteParser {
     render(res, route, locals = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const ex = this.routes[route];
-            if (ex) {
+            if (ex && typeof ex.exec === "function") {
                 let err = null;
                 !res.headersSent && res.setHeader("Content-Type", "text/html");
                 for (const v_key in ex.meta) {
@@ -79,7 +79,9 @@ class PugParser extends RouteParser {
                     if (this.server.db)
                         locals[v_key] = yield this.server.db.get(ex.meta[v_key]);
                 }
-                res.write(ex.exec(Object.assign({}, locals, { db: this.server.db })));
+                res.write(ex.exec(Object.assign(locals, {
+                    db: this.server.db
+                })));
                 return [err, !err];
             }
             throw new Error(`[PugParser]> Route "${route}" not found`);

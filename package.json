@@ -1,6 +1,6 @@
 {
   "name": "curie-server",
-  "version": "2.1.0",
+  "version": "2.1.4",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -12,6 +12,10 @@
   },
   "author": "lastshadowpl",
   "license": "ISC",
+  "repository": {
+    "url": "https://github.com/LastShadowPL/curie-server",
+    "type": "git"
+  },
   "dependencies": {
     "chalk": "^2.4.2",
     "fs-extra": "^7.0.1",
@@ -19,8 +23,9 @@
     "pug": "^2.0.3"
   },
   "devDependencies": {
+    "@types/cli-progress": "^1.8.1",
+    "@types/node": "^11.11.3",
     "@types/pug": "^2.0.4",
-    "@types/react": "^16.8.8",
-    "@types/node": "^11.11.3"
+    "@types/react": "^16.8.8"
   }
 }

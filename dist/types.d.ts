@@ -50,7 +50,7 @@ export interface ChalkColors {
     readonly bgWhiteBright: Chalk;
 }
 export declare type Executable<T> = (arg: LooseObject) => T;
-export declare type ConstructorParameters<T extends new (...args: any[]) => any> = T extends new (...args: infer P) => any ? P : never;
+export declare type ConstructorParameters<T extends ClassConstructor> = T extends new (args: infer P) => any ? P : never;
 export declare type ClassConstructor<T = any> = new (...args: any[]) => T;
 export interface Request extends http.IncomingMessage {
     query: LooseObject<string>;

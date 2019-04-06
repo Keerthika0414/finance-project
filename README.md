@@ -1,6 +1,27 @@
 # Curie
 A modular Node.js http/1.0 framework
 
+
+## Table of Content
+1. [Config](#config)
+1. [File Structure](#file_structure)
+    1. [Main File](#main_file)
+    1. [Database File](#db_file)
+    1. [Listeners](#list_files)
+    1. [Middleware](#mdw_files)
+    1. [Route Parser](#route_parser)
+    1. [Template Files](#routes)
+    1. [Single File Alternative](#single_file)
+1. [Classes](#classes)
+    1. [DBridge](#dbridge)
+    1. [Listener](#listener)
+    1. [Middleware](#middleware)
+1. [Types](#types)
+    1. [Request](#req)
+    1. [Response](#res)
+    1. [Server Parameters](#params)
+    1. [CallbackReturnType](#callback_return_type) 
+
 ## <div id="config">Config</div>
 Curie-server accepts a number of configuration options of the type:
 ```typescript
@@ -16,7 +37,6 @@ interface ServerParams {
 }
 ```
 **Keep in mind that all the paths are relative to the main file**
-But if you don't create a config file, `InitApp({...})` will either take the config from the default options or it's parameters. 
 
 ## <div id="file_structure">File structure</div>
 curie-server supports a multi file structure. An example file structure:
@@ -50,7 +70,7 @@ initApp({
 })
 ```
 
-### Database file
+### <div id="db_file">Database file</div>
 The database file is responcible for connecting with your database. It should export a class which extends the [DBridge](#dbridge) class. You may create your own class or use the so-called out of the box PotgreSQL DBridge.
 It should look something like it:
 ```typescript
@@ -61,7 +81,7 @@ import { database } from "curie-server/dist/@core"
 export default class extends PostDBridge {}
 ```
 
-### Listeners
+### <div id="list_files">Listeners</div>
 Listeners are responsible for responding to incoming http requests. Both their location and extension are specified in the `Server` constructor parameters in the [main](#main_file) file. A listener should extend [the Listener class](#listener), implement `onGET` and/or `onPOST` method(s), such that they return [CallbackReturnType](#callback_return_type). Example:
 ```typescript
 import c, { Listener } from "curie-server";
@@ -76,7 +96,7 @@ export default class extends Listener {
 }
 ``` 
 
-### Middleware
+### <div id="mdw_files">Middleware<div>
 Middleware is responcible for interrupting incoming requests and can even reject them. Middleware should extends [the Middleware](#middleware) class and return [the CallbackReturnType](#callback_return_type). It should look something like this:
 ```typescript
 import { CallbackReturnType, Middleware, withTime, Request, Response, c_log } from "curie-server";
@@ -106,7 +126,7 @@ abstract class RouteParser<RouteType = any> {
 ```
 Out of the box curie-server is providing support for the [pug](https://pugjs.org/api/getting-started.html) templating lang.
 
-### Routes
+### <div id="routes">Routes</div>
 Routes are themplates rendered by [the RouteParser](#route_parser). Out of the box you get the `PugParser`, which compiles `.pug` files and allows you to query item from the database (template: `//# $<variable_name>: <query>`).
 ```pug
 //# $posts: SELECT * FROM posts
@@ -122,7 +142,7 @@ html(lang="en")
           p.posts__post__body= post.body
 ```
 
-### Single file approach
+### <div id="single_file">Single file approach<div>
 While I highly advise you to take the advatnage of the multi file structure, around which the `curie-server` was built, you can fit everything into a single file.
 ```typescript
 import { initApp, database, hookup, use } from "curie-server/dist/@core";
@@ -158,7 +178,7 @@ import c, { Server, PostDBridge, Listener, Middleware, c_log, withTime } from "c
 })()
 ```
 
-## Classes
+## <div id="classes">Classes</div>
 ### <div id="dbridge">DBridge</div>
 ```typescript
 @database("<connection_uri>")
@@ -210,8 +230,8 @@ export default class Intercepter extends Middleware {
 }
 ```
 
-## Interfaces and types
-### Request
+## <div id="types">Interfaces and types</div>
+### <div id="req">Request</div>
 ```typescript
 interface Request extends http.IncomingMessage {
   query: LooseObject<string>
@@ -219,14 +239,14 @@ interface Request extends http.IncomingMessage {
   body: LooseObject
 }
 ```
-### Response
+### <div id="res">Response</div>
 ```typescript
 interface Response extends http.ServerResponse {
   cookies: cookies
 }
 ```
 
-### ServerParams
+### <div id="params">ServerParams</div>
 It is a configuration object passed to the Server constructor. 
 ```typescript
 interface ServerParams {

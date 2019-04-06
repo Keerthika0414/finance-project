@@ -57,7 +57,7 @@ class PostDBridge extends DBridge {
             const found = this.cache.get(query);
             if (found) {
                 const now = new Date();
-                if (Math.abs(found.date - now) < this.cache_time) {
+                if (Math.abs(found.date.getTime() - now.getTime()) < this.cache_time) {
                     return found.data;
                 }
             }
@@ -67,6 +67,16 @@ class PostDBridge extends DBridge {
                 date: new Date()
             });
             return res;
+        });
+    }
+    create(model, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const inst = new model(data);
+            const keys = Object.keys(inst);
+            const query = `INSERT INTO ${model.name} (${keys.join(',')}) VALUES (${keys.map(x => typeof inst[x] === "string" ? "'" + inst[x] + "'" : inst[x]).join(',')})`;
+            yield this.db.any(query).catch(err => {
+                log_1.c_log(withTime_1.withTime(`[PostDBridge]> Query "${query}" returned an error: ${err}`));
+            });
         });
     }
 }

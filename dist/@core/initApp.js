@@ -11,22 +11,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const loadConfig_1 = require("./loadConfig");
 const path_1 = __importDefault(require("path"));
+const Server_1 = require("../Server");
 const fs_extra_1 = __importDefault(require("fs-extra"));
-exports.initApp = (server) => __awaiter(this, void 0, void 0, function* () {
-    const config = loadConfig_1.loadConfig();
-    global.__curieServer = yield server.init(config);
+const log_1 = require("../helpers/log");
+const withTime_1 = require("../helpers/withTime");
+exports.initApp = (_config) => __awaiter(this, void 0, void 0, function* () {
+    const config = Object.assign(Server_1.Server.DEFAULT_SERVER_OPTIONS, _config);
+    config.root = config.root.replace(/(\\)+/gi, "/");
+    log_1.c_log(withTime_1.withTime(`[Curie]> Config ${JSON.stringify(config, null, 2)}`));
+    const server = new Server_1.Server(config);
+    yield server.init(config);
+    global.__curieServer = server;
     if (config.database)
         global.__curieDatabase = require(path_1.default.resolve(config.root, config.database)).default;
-    const promises = [];
-    for (const [dir, ext, key] of ["listeners", "middleware"].map(x => config[x].concat(x))) {
-        dir && ext && promises.push(fs_extra_1.default.readdir(path_1.default.resolve(config.root, dir)).then(f_names => f_names.reduce((modules, x) => {
-            if (new RegExp(`.${ext}$`, "i").test(x))
-                modules.push(require(path_1.default.resolve(config.root, dir, x)));
-            return modules;
-        }, [])));
+    for (const [dir, ext] of ["listeners", "middleware"].map(x => config[x].concat(x))) {
+        const r = ext instanceof RegExp ? ext : new RegExp(`.${ext}$`, "i");
+        if (dir && ext) {
+            yield fs_extra_1.default.readdir(path_1.default.resolve(config.root, dir))
+                .then((f_names) => f_names.forEach(x => {
+                if (r.test(x))
+                    require(path_1.default.resolve(config.root, dir, x));
+            }));
+        }
     }
-    return Promise.all(promises);
+    return server;
 });
 //# sourceMappingURL=initApp.js.map

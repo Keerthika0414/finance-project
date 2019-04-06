@@ -26,16 +26,11 @@ class Server extends events_1.EventEmitter {
     constructor(options = {}) {
         super();
         log_1.c_log(withTime_1.withTime("[CURIE]> Init: START"));
-        this.server = http_1.default.createServer({}, this.onRequest.bind(this));
+        this.server = http_1.default.createServer(this.onRequest.bind(this));
         this.hooks = [];
         this.middleware = [];
         this.files = new Map();
-        this.options = {
-            public: "",
-            routes: "",
-            routeParser: RouteParser_1.PugParser,
-            port: options.port || Server.DEFAULT_SERVER_OPTIONS.port
-        };
+        this.options = Object.assign(Server.DEFAULT_SERVER_OPTIONS, options);
     }
     init(config) {
         return new Promise(res => {
@@ -155,10 +150,14 @@ class Server extends events_1.EventEmitter {
     }
 }
 Server.DEFAULT_SERVER_OPTIONS = {
-    routes: path_1.default.resolve(__dirname, "./routes"),
+    routes: "./routes",
     routeParser: RouteParser_1.PugParser,
-    public: path_1.default.resolve(__dirname, "./public"),
-    port: 8000
+    public: "./public",
+    port: 8000,
+    listeners: ["./", "list.[jt]s"],
+    middleware: ["./", "mdw.[jt]s"],
+    database: '',
+    root: path_1.default.dirname(require.main.filename)
 };
 exports.Server = Server;
 //# sourceMappingURL=Server.js.map
