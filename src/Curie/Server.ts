@@ -13,6 +13,7 @@ import { withTime } from "./helpers/withTime";
 import { c_log } from "./helpers/log";
 import { Middleware } from "./Middleware";
 import { parseBody } from "./helpers/parseBody";
+import { getDirs } from "./helpers/getDirs";
 
 
 export interface ServerParams {
@@ -94,10 +95,11 @@ export class Server extends EventEmitter {
   }
 
   private async __loadFiles() {
-    for (const dir of ['/css', '/js', '/']) {
-      const res = await loadFilesData(path.join(this.options.public, dir), dir)
+    for (const dir of getDirs(this.options.public)) {
+      const res = await loadFilesData(dir, "/" + (/\w+$/g.exec(dir) || [dir])[0])
       res.forEach((file, key) => this.files.set(key, file))
     }
+    debugger
   }
 
   private async __InitEvents() { 
