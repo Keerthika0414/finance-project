@@ -1,15 +1,17 @@
 {
   "extends": "./tsconfig.json",
   "files": [
-    "./src/Curie/index.ts",
-    "./src/Curie/DBridge.ts",
-    "./src/Curie/Listener.ts",
-    "./src/Curie/RouteParser.ts",
-    "./src/Curie/Server.ts",
-    "./src/Curie/types.ts"
+    "./src/index.ts",
+    "./src/DBridge.ts",
+    "./src/Listener.ts",
+    "./src/RouteParser.ts",
+    "./src/Server.ts",
+    "./src/types.ts",
+    "./types/index.d.ts"
   ],
   "include": [
-    "./src/Curie/**/*"
+    "./src/**/*",
+    "./types/**/*"
   ],
   "exclude": [
     "node_modules",
@@ -19,6 +21,6 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "./dist/",
-    "rootDir": "./src/Curie",
+    "rootDir": "./src/",
   }
 }

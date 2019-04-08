@@ -59,7 +59,7 @@ curie-server supports a multi file structure. An example file structure:
 ### <div id="main_file">Main file</div>
 The main file is the file, which is responsible for starting your application.
 ```typescript
-import { initApp } from "curie-server/dist/@core"
+import { initApp } from "curie-server"
 initApp({
   port: 8000,
   public: "../public",
@@ -74,8 +74,7 @@ initApp({
 The database file is responcible for connecting with your database. It should export a class which extends the [DBridge](#dbridge) class. You may create your own class or use the so-called out of the box PotgreSQL DBridge.
 It should look something like it:
 ```typescript
-import { PostDBridge } from "curie-server"
-import { database } from "curie-server/dist/@core"
+import { PostDBridge, database } from "curie-server"
 
 @database("postgres://postgres:postgres@127.0.0.1:5432/postgres")
 export default class extends PostDBridge {}
@@ -84,8 +83,7 @@ export default class extends PostDBridge {}
 ### <div id="list_files">Listeners</div>
 Listeners are responsible for responding to incoming http requests. Both their location and extension are specified in the `Server` constructor parameters in the [main](#main_file) file. A listener should extend [the Listener class](#listener), implement `onGET` and/or `onPOST` method(s), such that they return [CallbackReturnType](#callback_return_type). Example:
 ```typescript
-import c, { Listener } from "curie-server";
-import { hookup } from "curie-server/dist/@core"
+import c, { Listener, hookup } from "curie-server";
 
 @hookup("/")
 export default class extends Listener {
@@ -99,8 +97,7 @@ export default class extends Listener {
 ### <div id="mdw_files">Middleware<div>
 Middleware is responcible for interrupting incoming requests and can even reject them. Middleware should extends [the Middleware](#middleware) class and return [the CallbackReturnType](#callback_return_type). It should look something like this:
 ```typescript
-import { CallbackReturnType, Middleware, withTime, Request, Response, c_log } from "curie-server";
-import { use } from "curie-server/dist/@core";
+import { CallbackReturnType, Middleware, withTime, Request, Response, c_log, use } from "curie-server";
 
 @use()
 export default class extends Middleware {
@@ -127,13 +124,15 @@ abstract class RouteParser<RouteType = any> {
 Out of the box curie-server is providing support for the [pug](https://pugjs.org/api/getting-started.html) templating lang.
 
 ### <div id="routes">Routes</div>
-Routes are themplates rendered by [the RouteParser](#route_parser). Out of the box you get the `PugParser`, which compiles `.pug` files and allows you to query item from the database (template: `//# $<variable_name>: <query>`).
+Routes are themplates rendered by [the RouteParser](#route_parser). Out of the box you get the `PugParser`, which compiles `.pug` files and allows you to query items from the database 
+(template: `//# $<variable_name>: <query>`).
 ```pug
 //# $posts: SELECT * FROM posts
 
 <!DOCTYPE html>
 html(lang="en")
-  head
+  head 
+    // ...
   body
     ul.posts
       for post in posts
@@ -145,8 +144,7 @@ html(lang="en")
 ### <div id="single_file">Single file approach<div>
 While I highly advise you to take the advatnage of the multi file structure, around which the `curie-server` was built, you can fit everything into a single file.
 ```typescript
-import { initApp, database, hookup, use } from "curie-server/dist/@core";
-import c, { Server, PostDBridge, Listener, Middleware, c_log, withTime } from "curie-server";
+import c, { Server, PostDBridge, Listener, Middleware, c_log, withTime, initApp, database, hookup, use } from "curie-server";
 
 (async () => {
   await initApp({

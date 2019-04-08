@@ -6,5 +6,5 @@ export abstract class Middleware {
     this.server = server
   }
 
-  abstract async intercept(req: Request, res: Response): Promise<CallbackReturnType>
+  abstract async intercept(req?: Request, res?: Response): Promise<CallbackReturnType>
 }

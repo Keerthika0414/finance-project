@@ -1,5 +1,4 @@
-import c, { Listener } from "curie-server";
-import { hookup } from "curie-server/dist/@core"
+import c, { Listener, hookup } from "curie-server";
 
 @hookup("/")
 export default class extends Listener {

@@ -1,5 +1,5 @@
-import { Server, ServerParams } from "../src/Curie/Server";
-import { DBridge } from "../src/Curie/DBridge";
+import { Server, ServerParams } from "../src/Server";
+import { DBridge } from "../src/DBridge";
 
 declare global {
   namespace NodeJS {  

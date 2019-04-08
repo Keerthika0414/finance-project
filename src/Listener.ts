@@ -15,14 +15,14 @@ export abstract class Listener {
   }
   
   async onGET(
-    req: http.IncomingMessage, 
-    res: http.ServerResponse
+    req?: http.IncomingMessage, 
+    res?: http.ServerResponse
     ): Promise<CallbackReturnType | undefined> {
       return DEFAULT_RETURN_VALUE
     }
   async onPOST(
-    req: http.IncomingMessage, 
-    res: http.ServerResponse
+    req?: http.IncomingMessage, 
+    res?: http.ServerResponse
     ): Promise<CallbackReturnType | undefined> {
       return DEFAULT_RETURN_VALUE
     }

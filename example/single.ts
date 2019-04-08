@@ -1,5 +1,4 @@
-import { initApp, database, hookup, use } from "curie-server/dist/@core";
-import c, { PostDBridge, Listener, Middleware, c_log, withTime, Response, Request } from "curie-server";
+import c, { PostDBridge, Listener, Middleware, c_log, withTime, Response, Request, initApp, database, hookup, use } from "curie-server";
 
 (async () => {
   await initApp({
