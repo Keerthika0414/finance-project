@@ -1,5 +1,5 @@
 import http from "http"
-import { CallbackReturnType, Response, LooseObject } from "./types";
+import { CallbackReturnType, Response, LooseObject, Request } from "./types";
 import { Server } from "./Server";
 
 const DEFAULT_RETURN_VALUE: CallbackReturnType = [null, true]
@@ -15,14 +15,14 @@ export abstract class Listener {
   }
   
   async onGET(
-    req?: http.IncomingMessage, 
-    res?: http.ServerResponse
+    req?: Request, 
+    res?: Response
     ): Promise<CallbackReturnType | undefined> {
       return DEFAULT_RETURN_VALUE
     }
   async onPOST(
-    req?: http.IncomingMessage, 
-    res?: http.ServerResponse
+    req?: Request, 
+    res?: Response
     ): Promise<CallbackReturnType | undefined> {
       return DEFAULT_RETURN_VALUE
     }

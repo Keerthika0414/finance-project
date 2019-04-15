@@ -67,7 +67,7 @@ export interface Request extends http.IncomingMessage {
 	cookies: cookies
 	body: LooseObject
 }
-export interface Response extends http.ServerResponse {
+declare interface Response extends http.ServerResponse {
   cookies: cookies
 }
 export type Cookies = cookies

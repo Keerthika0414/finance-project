@@ -4,7 +4,6 @@
 		"module": "commonjs",
 		"lib": ["esnext.asynciterable", "dom", "es2015", "esnext"],
 		"jsx": "react",
-		"rootDir": "./",
 		"removeComments": true,
 		"strict": true,
 		"esModuleInterop": true,
@@ -15,6 +14,7 @@
 		"declaration": true,
 		"sourceMap": true,
 		"diagnostics": true,
+		"rootDir": "./src/",
 		"typeRoots": [
 			"node_modules/@types/",
 			"./"

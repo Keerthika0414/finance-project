@@ -47,7 +47,7 @@ export const loadFilesData = (dir: string, prefix: string) => new Promise<Map<st
 	fs.readdir(dir)
 		.then(names => names.filter(x => x.match(/\..+$/)))
 		.then(fnames =>
-			fnames.forEach(fname => {
+			fnames.forEach(async fname => {
 				const filePath = path.join(dir, fname)
 				const contentType = mime.getType(filePath)
 				let buffer: Buffer

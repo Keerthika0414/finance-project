@@ -4,17 +4,20 @@ import { Listener } from "./Listener";
 import { parseQuery } from "./helpers/parseQuery";
 import path from "path"
 import { RouteParser, PugParser } from "./RouteParser";
-import { Response, CallbackReturnType, ClassConstructor, ConstructorParameters, Request } from "./types";
+import { Response, CallbackReturnType, ClassConstructor, ConstructorParameters, Request, ChalkColors } from "./types";
 import { loadFilesData, loadFilesDataResponse } from "./helpers/loadFiles";
 import { send } from "./helpers/send";
 import { DBridge } from "./DBridge";
 import { EventEmitter } from "events";
 import { withTime } from "./helpers/withTime";
-import { c_log } from "./helpers/log";
+import { c_log, initLogger, log } from "./helpers/log";
 import { Middleware } from "./Middleware";
 import { parseBody } from "./helpers/parseBody";
 import { getDirs } from "./helpers/getDirs";
+import cp from "child_process"
+import util from "util"
 
+const exec = util.promisify(cp.exec)
 
 export interface ServerParams {
   routes: string,
@@ -23,11 +26,15 @@ export interface ServerParams {
   port: number
   listeners: [string, string | RegExp]
   middleware: [string, string | RegExp]
-  database: string,
+  database: string
   root: string
+  preRun: string[]
   [key: string]: any | any[]
 }
 
+const CLOGGER = initLogger("Curie", "yellowBright")
+const C_ERROR_LOGGER = initLogger("Error", "bgRedBright")
+const C_TASK_LOGGER = initLogger("Task", "cyanBright")
 
 export class Server extends EventEmitter {
   server: http.Server
@@ -39,6 +46,7 @@ export class Server extends EventEmitter {
   routeParser: RouteParser 
   files: Map<string, loadFilesDataResponse>
   middleware: Middleware[]
+
   static DEFAULT_SERVER_OPTIONS: ServerParams = {
     routes: "./routes",
     routeParser: PugParser,
@@ -47,17 +55,33 @@ export class Server extends EventEmitter {
     listeners: ["./", "list.[jt]s"],
     middleware: ["./", "mdw.[jt]s"],
     database: '',
+    preRun: [],
     root: path.dirname((require.main as NodeModule).filename)
   }
 
   constructor(options: Partial<ServerParams> = {}) {
     super()
-    c_log(withTime("[CURIE]> Init: START"))
-    this.server = http.createServer(this.onRequest.bind(this))
+    
     this.hooks = []
     this.middleware = []
     this.files = new Map<string, loadFilesDataResponse>()
     this.options = Object.assign(Server.DEFAULT_SERVER_OPTIONS, options)
+    
+    this.__doPreRunTasks()
+    CLOGGER("Init: START")
+    this.server = http.createServer(this.onRequest.bind(this))
+  }
+
+  private __doPreRunTasks() {
+    this.options.preRun.forEach((task, i) => {
+      const logger = (c: keyof ChalkColors) => initLogger(`Task:${i}`, c)
+      exec(task)
+        .then(({ stdout, stderr }) => {
+          if(stderr) logger("redBright")(stderr)
+          else if(stdout) logger("cyanBright")(stdout)
+        })
+        .catch(logger("redBright"))
+    })  
   }
 
   init(config: ServerParams) {
@@ -73,7 +97,7 @@ export class Server extends EventEmitter {
       this.use = this.use.bind(this)
 
       Promise.all([this.__InitEvents(), this.__loadFiles()]).then(() => {
-        c_log(withTime("[CURIE]> Init: END"))
+        CLOGGER("Init: END")
         this.mix(this.options.port)
       }).then(() => res(this))
     })
@@ -186,7 +210,7 @@ export class Server extends EventEmitter {
 
   private mix(port: number) {
     this.server.listen(port, () => {
-      c_log(withTime(`[CURIE]> Listening @${port}`))
+      CLOGGER(`Listening @${port}`)
     })
   }
 }
