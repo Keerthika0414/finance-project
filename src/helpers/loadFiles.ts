@@ -45,7 +45,7 @@ export const loadFilesFD = (dir: string, prefix: string) =>
 export const loadFilesData = (dir: string, prefix: string) => new Promise<Map<string, loadFilesDataResponse>>((res, rej) => {
 	const files = new Map()
 	fs.readdir(dir)
-		.then(names => names.filter(x => x.match(/\..+$/)))
+		.then(names => names.filter(x => /\..+$/.test(x)))
 		.then(fnames =>
 			fnames.forEach(async fname => {
 				const filePath = path.join(dir, fname)

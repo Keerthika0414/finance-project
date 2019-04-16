@@ -6,11 +6,10 @@ import { initApp, hookup, Listener, Response, Request, CallbackReturnType, PostD
     middleware: ["./", "mdw.[tj]s"],
     listeners: ["./", "list.[tj]s"],
     routes: "./routes",
-    public: "./public",
+    public: "./public/",
     port: 8000,
     preRun: [
-      "echo Hello",
-      "hello"
+      // "npm run build",
     ]
   })
 

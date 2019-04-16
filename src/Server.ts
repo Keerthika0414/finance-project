@@ -16,6 +16,7 @@ import { parseBody } from "./helpers/parseBody";
 import { getDirs } from "./helpers/getDirs";
 import cp from "child_process"
 import util from "util"
+import { normalizePath } from "./helpers/fixFilePath";
 
 const exec = util.promisify(cp.exec)
 
@@ -67,25 +68,29 @@ export class Server extends EventEmitter {
     this.files = new Map<string, loadFilesDataResponse>()
     this.options = Object.assign(Server.DEFAULT_SERVER_OPTIONS, options)
     
-    this.__doPreRunTasks()
     CLOGGER("Init: START")
     this.server = http.createServer(this.onRequest.bind(this))
   }
 
+  get ext() {
+    return path.extname((process.mainModule as NodeModule).filename)
+  }
+
   private __doPreRunTasks() {
-    this.options.preRun.forEach((task, i) => {
+    return this.options.preRun.map((task, i) => {
       const logger = (c: keyof ChalkColors) => initLogger(`Task:${i}`, c)
-      exec(task)
+      return exec(task)
         .then(({ stdout, stderr }) => {
           if(stderr) logger("redBright")(stderr)
           else if(stdout) logger("cyanBright")(stdout)
+          return stdout
         })
         .catch(logger("redBright"))
     })  
   }
 
   init(config: ServerParams) {
-    return new Promise(res => {
+    return new Promise(async res => {
       this.options.public = path.resolve(config.root, config.public)
       this.options.routes = path.resolve(config.root, config.routes)
 
@@ -96,10 +101,16 @@ export class Server extends EventEmitter {
 
       this.use = this.use.bind(this)
 
-      Promise.all([this.__InitEvents(), this.__loadFiles()]).then(() => {
-        CLOGGER("Init: END")
-        this.mix(this.options.port)
-      }).then(() => res(this))
+      Promise.all(this.__doPreRunTasks())
+        .then(() => {
+          Promise.all([this.__InitEvents(), this.__loadFiles()])
+            .then(() => {
+              CLOGGER("Init: END")
+              this.mix(this.options.port)
+            })
+            .then(() => res(this))
+        })
+        .catch(C_ERROR_LOGGER)
     })
   }
 
@@ -119,8 +130,11 @@ export class Server extends EventEmitter {
   }
 
   private async __loadFiles() {
-    for (const dir of getDirs(this.options.public)) {
-      const res = await loadFilesData(dir, "/" + (/\w+$/g.exec(dir) || [dir])[0])
+    const dirs = getDirs(this.options.public).concat(this.options.public)
+    for (const dir of dirs) {
+      // (/\w+$/g.exec(dir) || [dir])[0]
+      const prefix = "/" + normalizePath(path.relative(this.options.public, dir))
+      const res = await loadFilesData(dir, prefix)
       res.forEach((file, key) => this.files.set(key, file))
     }
     debugger
@@ -177,7 +191,7 @@ export class Server extends EventEmitter {
 
     // Try returning a file
     const [err, cont] = this.checkForFile(path, res)
-    err&&!cont&&console.error(err)
+    err&&!cont&&C_ERROR_LOGGER(String(err))
     if(!cont) return;
 
     ListenerLoop:
@@ -185,6 +199,12 @@ export class Server extends EventEmitter {
       const [err, cont] = await l[`on${req.method || "GET"}`](req, res);
       err&&console.error(err)
       if(!cont) break
+    }
+
+    if(this.hooks.some(h => !h.__testPath(path))) {
+      res.setHeader("Content-Type", "text/html")
+      if(this.routeParser.routes["404"]) await this.routeParser.render(res, "404", {path})
+      else await res.write(`<h1>Error 404</h1><br/><p>page ${path} not found</p>`)
     }
     return res.end()
   }
@@ -200,7 +220,7 @@ export class Server extends EventEmitter {
   }
 
   private checkForFile(path: string, res: Response) {
-    const f = this.files.get(path)
+    const f = this.files.get(normalizePath(path))
     if(!f) return [new Error(`File not found: ${path}`), true]
     if (!res.writable) return [new Error("Response not writable"),false]
     send(res, f.buffer, { "Content-Type": f.mime, "charset": "utf-8"})
