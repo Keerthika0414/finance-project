@@ -35,14 +35,13 @@ export interface ServerParams {
 
 const CLOGGER = initLogger("Curie", "yellowBright")
 const C_ERROR_LOGGER = initLogger("Error", "bgRedBright")
-const C_TASK_LOGGER = initLogger("Task", "cyanBright")
 
 export class Server extends EventEmitter {
   server: http.Server
   hooks: Listener[]
   db: DBridge<any, any> | undefined
   options: ServerParams
-  // It stops the linter from whining about the routerParser being undefined before .init(), which is called immediately
+  // It stops the linter from whining about the routerParser being undefined before .init(), which is called immediately after the constructor
   // @ts-ignore
   routeParser: RouteParser 
   files: Map<string, loadFilesDataResponse>
@@ -79,14 +78,21 @@ export class Server extends EventEmitter {
   private __doPreRunTasks() {
     return this.options.preRun.map((task, i) => {
       const logger = (c: keyof ChalkColors) => initLogger(`Task:${i}`, c)
-      return exec(task)
-        .then(({ stdout, stderr }) => {
-          if(stderr) logger("redBright")(stderr)
-          else if(stdout) logger("cyanBright")(stdout)
-          return stdout
+
+      return new Promise((res, rej) => {
+        const p = cp.exec(task, {
+          cwd: process.cwd()
+        }, (err, out, stderr) => {
+          if(err) rej(stderr || err)
+          else res(out)
         })
-        .catch(logger("redBright"))
-    })  
+  
+        if(p.stdout) {
+          p.stdout.on("data", logger("cyanBright"))
+          p.on("error", logger("redBright"))
+        }
+      })
+    }) 
   }
 
   init(config: ServerParams) {
@@ -118,14 +124,19 @@ export class Server extends EventEmitter {
     return (target: ClassConstructor<Listener>) => {
       const inst = new target(this, path)
       this.hooks.push(inst)
+      initLogger("Hook-Up", "yellowBright")(`Initialized the "${path}" listener`)
     }
   }
 
-  use(target: ClassConstructor<Middleware>){this.middleware.push(new target(this))}
+  use(target: ClassConstructor<Middleware>){
+    this.middleware.push(new target(this))
+    initLogger("Use", "yellowBright")(`Initialized the "${target.name}" middleware`)
+  }
 
   database(cn: string) {
     return (target: ClassConstructor<DBridge<any, any>>) => {
       this.db = new target(cn, this)
+      initLogger("Database", "yellowBright")(`Initialized the databse with ${cn}`)
     } 
   }
 

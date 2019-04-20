@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "./public/ts/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules/**/*",
+    "**/@types/d3-shape/**/*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./public/js"
+  }
+}
