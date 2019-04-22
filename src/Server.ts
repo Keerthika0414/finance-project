@@ -17,6 +17,7 @@ import { getDirs } from "./helpers/getDirs";
 import cp from "child_process"
 import util from "util"
 import { normalizePath } from "./helpers/fixFilePath";
+import { runTasks } from "./helpers/runTasks";
 
 const exec = util.promisify(cp.exec)
 
@@ -76,23 +77,7 @@ export class Server extends EventEmitter {
   }
 
   private __doPreRunTasks() {
-    return this.options.preRun.map((task, i) => {
-      const logger = (c: keyof ChalkColors) => initLogger(`Task:${i}`, c)
-
-      return new Promise((res, rej) => {
-        const p = cp.exec(task, {
-          cwd: process.cwd()
-        }, (err, out, stderr) => {
-          if(err) rej(stderr || err)
-          else res(out)
-        })
-  
-        if(p.stdout) {
-          p.stdout.on("data", logger("cyanBright"))
-          p.on("error", logger("redBright"))
-        }
-      })
-    }) 
+    return runTasks.call(this)
   }
 
   init(config: ServerParams) {
@@ -107,15 +92,15 @@ export class Server extends EventEmitter {
 
       this.use = this.use.bind(this)
 
-      Promise.all(this.__doPreRunTasks())
+      for(const task of this.__doPreRunTasks()) {
+        await task
+      }
+      await Promise.all([this.__InitEvents(), this.__loadFiles()])
         .then(() => {
-          Promise.all([this.__InitEvents(), this.__loadFiles()])
-            .then(() => {
-              CLOGGER("Init: END")
-              this.mix(this.options.port)
-            })
-            .then(() => res(this))
+          CLOGGER("Init: END")
+          this.mix(this.options.port)
         })
+        .then(() => res(this))
         .catch(C_ERROR_LOGGER)
     })
   }
@@ -148,7 +133,6 @@ export class Server extends EventEmitter {
       const res = await loadFilesData(dir, prefix)
       res.forEach((file, key) => this.files.set(key, file))
     }
-    debugger
   }
 
   private async __InitEvents() { 

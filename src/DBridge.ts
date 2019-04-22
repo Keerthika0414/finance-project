@@ -20,17 +20,18 @@ export abstract class DBridge<DBType, QueryType> {
   constructor(db_link: string, server?: Server) {
     server&&!server.db&&(server.db = this)
   }
+  async initConnection(): Promise<any> {return Promise.resolve()}
   async get(query: QueryType): Promise<LooseObject[] | any> {
-    return new Promise(res => res())
+    return Promise.resolve()
   }
   async update(query: QueryType): Promise<UpdateResponse | any> {
-    return new Promise(res => res())
+    return Promise.resolve()
   }
   async delete(query: QueryType): Promise<DeleteResponse | any> {
-    return new Promise(res => res())
+    return Promise.resolve()
   }
   async create<T>(model: ClassConstructor<T>, data: ConstructorParameters<ClassConstructor<T>>): Promise<CreateResponse | any> {
-    return new Promise(res => res())
+    return Promise.resolve()
   }
 }
 

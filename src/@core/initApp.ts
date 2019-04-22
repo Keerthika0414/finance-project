@@ -16,11 +16,13 @@ export const initApp = async (_config: Partial<ServerParams>) => {
   await server.init(config)
 
   global.__curieServer = server 
-  if (config.database)
+  if (config.database) {
     global.__curieDatabase = require(path.resolve(
       config.root,
       config.database
     )).default
+    global.__curieDatabase.initConnection&&(await global.__curieDatabase.initConnection())
+  }
 
   for (const [dir, ext] of ["listeners", "middleware"].map(x =>
     (config[x] as any[]).concat(x)

@@ -21,18 +21,22 @@ A modular Node.js http/1.0 framework
     1. [Response](#res)
     1. [Server Parameters](#params)
     1. [CallbackReturnType](#callback_return_type) 
+1. [Helpers](#helpers)
+    1. [Logging](#helpers_logging)
+    1. [PreRun commands](#prerun)
 
 ## <div id="config">Config</div>
 Curie-server accepts a number of configuration options of the type:
 ```typescript
 interface ServerParams {
-  routes: string,
+  routes: string
   routeParser: ClassConstructor<RouteParser>
   public: string
   port: number
   listeners: [string, string | RegExp]
   middleware: [string, string | RegExp]
-  database: string,
+  database: string
+  preRun: string[]
   root: string
 }
 ```
@@ -204,14 +208,14 @@ class MyDBridge extends DBridge<DBInterface, QueryType> {
 @hookup("/")
 class IndexListener extends Listener {  
   async onGET(
-    req: http.IncomingMessage, 
-    res: http.ServerResponse
+    req?: Request, 
+    res?: Response
     ): Promise<CallbackReturnType | undefined> {
       return [null, true]
     }
   async onPOST(
-    req: http.IncomingMessage, 
-    res: http.ServerResponse
+    req?: Request, 
+    res?: Response
     ): Promise<CallbackReturnType | undefined> {
       return [null, true]
     }
@@ -221,7 +225,7 @@ class IndexListener extends Listener {
 ```typescript
 @use()
 export default class Intercepter extends Middleware {
-  async intercept(req: Request, res: Response) {
+  async intercept(req?: Request, res?: Response) {
     // Do something
     return [null, true] as CallbackReturnType
   }
@@ -229,6 +233,13 @@ export default class Intercepter extends Middleware {
 ```
 
 ## <div id="types">Interfaces and types</div>
+### <div id="looseobject">LooseObject</div>
+An implementation of a key-value map.
+```typescript
+interface LooseObject<T = any> {
+  [key: string]: T
+}
+```
 ### <div id="req">Request</div>
 ```typescript
 interface Request extends http.IncomingMessage {
@@ -252,10 +263,11 @@ interface ServerParams {
   routeParser: ClassConstructor<RouteParser>
   public: string
   port: number
-  listeners: [string, string | RegExp]
-  middleware: [string, string | RegExp]
-  database: string,
+  listeners: [string, string | RegExp] // [path_to_dir, extension]
+  middleware: [string, string | RegExp] // [path_to_dir, extension]
+  database: string
   root: string
+  preRun: string[]
   [key: string]: any | any[]
 }
 
@@ -267,7 +279,8 @@ Server.DEFAULT_SERVER_OPTIONS: ServerParams = {
     listeners: ["./", "list.[jt]s"],
     middleware: ["./", "mdw.[jt]s"],
     database: '',
-    root: path.dirname((require.main as NodeModule).filename)
+    preRun: [],
+    root: path.dirname(require.main.filename)
   }
 ```
 
@@ -276,3 +289,37 @@ CallbackReturnType is a value returned by many `curie-server` functions, but is 
 ```typescript
 type CallbackReturnType = [Error | null, boolean]
 ```
+
+## <div id="helpers">Helpers</div>
+### <div id="helpers_logging">Logging</div>
+`curie-server` comes with a plethora of tools to help you log info.
+```typescript
+const log = (text: any, color: keyof ChalkColors) =>
+  console.log(
+    ((chalk[color] as any) as Executable<string>)(
+      typeof text === "object" ? JSON.stringify(text) : text
+    )
+  )
+const c_log = (text: string) => log(text, "yellowBright")
+
+const initLogger = 
+  (name: string, color: keyof ChalkColors): LoggerFunction 
+  => (text: string) 
+  => log(withTime(`[${name}]> ${text}`), color)
+
+```
+
+### <div id="prerun">PreRun commands</div>
+[initApp](#main_file) accepts a parameter called `preRun`. It's simply an array of commands to run before the rest of initialization (loading files, setting up events etc.). Errors won't terminate the main process, but only propagate the error message to the console (same with stdout).
+```typescript
+initApp({
+  // ...
+  preRun: [
+    "tsc"
+  ]
+})
+```
+In the example, the `tsc` command will run before loading files to a memory, thus allowing you to compile i.e. typescript files.
+
+### <div id="cli">CLI</div>
+`curie-server` listens for a console input and evaluates it upon pressing `Enter`. Errors won't terminate the main process. `this` refers to the `Server` instance.

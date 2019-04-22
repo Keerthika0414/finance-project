@@ -10,6 +10,7 @@ import { initApp, hookup, Listener, Response, Request, CallbackReturnType, PostD
     port: 8000,
     preRun: [
       // "npm run build",
+      "echo Hello"
     ]
   })
 
