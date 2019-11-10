@@ -450,12 +450,12 @@
         "signature": "7b5d803b99f7fb7d658a1edabc7bfcdede11a4ef79c09fd0fcafc80e8f65d013"
       },
       "./src/Server.ts": {
-        "version": "96aa17995ef15fdad3067f62a13fddd0b93275ec4193e2f5b29ea7cbadd6e491",
-        "signature": "c26dca6ffe3dfb615269ced0b1e84d4a66df566d874992873c7e82219ccdd318"
+        "version": "d37d4a0ede77d20301e19f7d8768fd6dbf20c3f34767e357056dbf5fdccaf280",
+        "signature": "040304f8a10bd8254bac3b6063e5b60731f0ecbba5aa86f97b6eec8f79e30362"
       },
       "./types/index.d.ts": {
-        "version": "e205503df89271273d12a40616b083832e0c5ff25fe78990ca665d40e8ae7925",
-        "signature": "e205503df89271273d12a40616b083832e0c5ff25fe78990ca665d40e8ae7925"
+        "version": "207b330f93091a0497ceb8d4a3ac070e883f7698ec1497ecb8ff56e1b4ed6740",
+        "signature": "207b330f93091a0497ceb8d4a3ac070e883f7698ec1497ecb8ff56e1b4ed6740"
       },
       "./src/@core/initApp.ts": {
         "version": "bba3eca03a28989c8f59056f9ac3e600d3e95dda8d6b775796e45da3f201c9e5",
@@ -1146,6 +1146,7 @@
         "./node_modules/@types/node/util.d.ts",
         "./src/helpers/fixFilePath.ts",
         "./src/helpers/runTasks.ts",
+        "./node_modules/@types/node/url.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts"
       ],
       "./types/index.d.ts": [
@@ -1738,6 +1739,7 @@
       "./node_modules/@types/cookies/index.d.ts",
       "./node_modules/chalk/types/index.d.ts",
       "./src/types.d.ts",
+      "./src/Listener.ts",
       "./src/helpers/parseQuery.ts",
       "./node_modules/@types/pug/index.d.ts",
       "./node_modules/@types/fs-extra/index.d.ts",
@@ -1757,7 +1759,6 @@
       "./src/helpers/parseBody.ts",
       "./src/helpers/getDirs.ts",
       "./src/helpers/runTasks.ts",
-      "./src/Server.ts",
       "./types/index.d.ts",
       "./src/@core/initApp.ts",
       "./src/@core/decorators/hookup.ts",
@@ -1768,7 +1769,7 @@
       "./src/index.ts",
       "./src/helpers/switchMIME.ts",
       "./src/helpers/pipeFile.ts",
-      "./src/Listener.ts"
+      "./src/Server.ts"
     ]
   },
   "version": "3.7.2"

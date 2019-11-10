@@ -1,12 +1,12 @@
 /// <reference types="node" />
-import http from "http";
-import { Listener } from "./Listener";
-import { RouteParser } from "./RouteParser";
-import { CallbackReturnType, ClassConstructor } from "./types";
-import { loadFilesDataResponse } from "./helpers/loadFiles";
-import { DBridge } from "./DBridge";
-import { EventEmitter } from "events";
-import { Middleware } from "./Middleware";
+import http from 'http';
+import { Listener } from './Listener';
+import { RouteParser } from './RouteParser';
+import { CallbackReturnType, ClassConstructor } from './types';
+import { loadFilesDataResponse } from './helpers/loadFiles';
+import { DBridge } from './DBridge';
+import { EventEmitter } from 'events';
+import { Middleware } from './Middleware';
 export interface ServerParams {
     routes: string;
     routeParser: ClassConstructor<RouteParser>;

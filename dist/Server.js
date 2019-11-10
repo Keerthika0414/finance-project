@@ -28,8 +28,8 @@ const util_1 = __importDefault(require("util"));
 const fixFilePath_1 = require("./helpers/fixFilePath");
 const runTasks_1 = require("./helpers/runTasks");
 const exec = util_1.default.promisify(child_process_1.default.exec);
-const CLOGGER = log_1.initLogger("Curie", "yellowBright");
-const C_ERROR_LOGGER = log_1.initLogger("Error", "bgRedBright");
+const CLOGGER = log_1.initLogger('Curie', 'yellowBright');
+const C_ERROR_LOGGER = log_1.initLogger('Error', 'bgRedBright');
 class Server extends events_1.EventEmitter {
     constructor(options = {}) {
         super();
@@ -37,7 +37,7 @@ class Server extends events_1.EventEmitter {
         this.middleware = [];
         this.files = new Map();
         this.options = Object.assign(Server.DEFAULT_SERVER_OPTIONS, options);
-        CLOGGER("Init: START");
+        CLOGGER('Init: START');
         this.server = http_1.default.createServer(this.onRequest.bind(this));
     }
     get ext() {
@@ -57,7 +57,7 @@ class Server extends events_1.EventEmitter {
             }
             yield Promise.all([this.__InitEvents(), this.__loadFiles()])
                 .then(() => {
-                CLOGGER("Init: END");
+                CLOGGER('Init: END');
                 this.mix(this.options.port);
             })
                 .then(() => res(this))
@@ -68,24 +68,24 @@ class Server extends events_1.EventEmitter {
         return (target) => {
             const inst = new target(this, path);
             this.hooks.push(inst);
-            log_1.initLogger("Hook-Up", "yellowBright")(`Initialized the "${path}" listener`);
+            log_1.initLogger('Hook-Up', 'yellowBright')(`Initialized the "${path}" listener`);
         };
     }
     use(target) {
         this.middleware.push(new target(this));
-        log_1.initLogger("Use", "yellowBright")(`Initialized the "${target.name}" middleware`);
+        log_1.initLogger('Use', 'yellowBright')(`Initialized the "${target.name}" middleware`);
     }
     database(cn) {
         return (target) => {
             this.db = new target(cn, this);
-            log_1.initLogger("Database", "yellowBright")(`Initialized the databse with ${cn}`);
+            log_1.initLogger('Database', 'yellowBright')(`Initialized the databse with ${cn}`);
         };
     }
     __loadFiles() {
         return __awaiter(this, void 0, void 0, function* () {
             const dirs = getDirs_1.getDirs(this.options.public).concat(this.options.public);
             for (const dir of dirs) {
-                const prefix = "/" + fixFilePath_1.normalizePath(path_1.default.relative(this.options.public, dir));
+                const prefix = '/' + fixFilePath_1.normalizePath(path_1.default.relative(this.options.public, dir));
                 const res = yield loadFiles_1.loadFilesData(dir, prefix);
                 res.forEach((file, key) => this.files.set(key, file));
             }
@@ -94,8 +94,8 @@ class Server extends events_1.EventEmitter {
     __InitEvents() {
         return __awaiter(this, void 0, void 0, function* () {
             const stdin = process.openStdin();
-            stdin.addListener("data", this.inputHandler.bind(this));
-            const r = yield (this.routeParser && (this.routeParser.compileAll()));
+            stdin.addListener('data', this.inputHandler.bind(this));
+            const r = yield (this.routeParser && this.routeParser.compileAll());
             if (r && r[0]) {
                 console.error(r[0]);
             }
@@ -103,7 +103,7 @@ class Server extends events_1.EventEmitter {
     }
     inputHandler(_d) {
         const d = String(_d).trim();
-        if (["rs"].some(x => x === d))
+        if (['rs'].some(x => x === d))
             return;
         (function () {
             function print(txt, ...args) {
@@ -119,16 +119,17 @@ class Server extends events_1.EventEmitter {
     }
     onRequest(__req, __res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const path = (__req.url || '').replace(/^\/+/, '/');
+            const path_cleaned = (__req.url || '').replace(/^\/+/, '/');
+            const path = path_cleaned.replace(/\?.+$/g, '');
             const cs = cookies_1.default(__req, __res);
-            const body = yield parseBody_1.parseBody(__req, "JSON");
+            const body = yield parseBody_1.parseBody(__req, 'JSON');
             const req = Object.assign(__req, {
-                query: parseQuery_1.parseQuery(path),
+                query: parseQuery_1.parseQuery(path_cleaned),
                 cookies: cs,
-                body
+                body,
             });
             const res = Object.assign(__res, {
-                cookies: cs
+                cookies: cs,
             });
             MiddlewareLoop: for (const m of this.middleware) {
                 const [err, cont] = yield m.intercept(req, res);
@@ -141,15 +142,15 @@ class Server extends events_1.EventEmitter {
             if (!cont)
                 return;
             ListenerLoop: for (const l of this.hooks.filter(l => l.__testPath(path))) {
-                const [err, cont] = yield l[`on${req.method || "GET"}`](req, res);
+                const [err, cont] = yield l[`on${req.method || 'GET'}`](req, res);
                 err && console.error(err);
                 if (!cont)
                     break;
             }
             if (this.hooks.some(h => !h.__testPath(path))) {
-                res.setHeader("Content-Type", "text/html");
-                if (this.routeParser.routes["404"])
-                    yield this.routeParser.render(res, "404", { path });
+                res.setHeader('Content-Type', 'text/html');
+                if (this.routeParser.routes['404'])
+                    yield this.routeParser.render(res, '404', { path });
                 else
                     yield res.write(`<h1>Error 404</h1><br/><p>page ${path} not found</p>`);
             }
@@ -172,8 +173,8 @@ class Server extends events_1.EventEmitter {
         if (!f)
             return [new Error(`File not found: ${path}`), true];
         if (!res.writable)
-            return [new Error("Response not writable"), false];
-        send_1.send(res, f.buffer, { "Content-Type": f.mime, "charset": "utf-8" });
+            return [new Error('Response not writable'), false];
+        send_1.send(res, f.buffer, { 'Content-Type': f.mime, charset: 'utf-8' });
         res.end();
         return [null, false];
     }
@@ -185,14 +186,14 @@ class Server extends events_1.EventEmitter {
 }
 exports.Server = Server;
 Server.DEFAULT_SERVER_OPTIONS = {
-    routes: "./routes",
+    routes: './routes',
     routeParser: RouteParser_1.PugParser,
-    public: "./public",
+    public: './public',
     port: 8000,
-    listeners: ["./", "list.[jt]s"],
-    middleware: ["./", "mdw.[jt]s"],
+    listeners: ['./', 'list.[jt]s'],
+    middleware: ['./', 'mdw.[jt]s'],
     database: '',
     preRun: [],
-    root: path_1.default.dirname(require.main.filename)
+    root: path_1.default.dirname(require.main.filename),
 };
 //# sourceMappingURL=Server.js.map
