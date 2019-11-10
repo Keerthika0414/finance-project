@@ -8,4 +8,5 @@ export * from "./helpers/withTime";
 export * from "./helpers/loadFiles";
 export * from "./helpers/log";
 export * from "./helpers/parseBody";
-export * from "./types";
+export * from "../types/index";
+export * from "./@core";

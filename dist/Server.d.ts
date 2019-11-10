@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import http from "http";
 import { Listener } from "./Listener";
 import { RouteParser } from "./RouteParser";
@@ -15,6 +16,7 @@ export interface ServerParams {
     middleware: [string, string | RegExp];
     database: string;
     root: string;
+    preRun: string[];
     [key: string]: any | any[];
 }
 export declare class Server extends EventEmitter {
@@ -27,7 +29,9 @@ export declare class Server extends EventEmitter {
     middleware: Middleware[];
     static DEFAULT_SERVER_OPTIONS: ServerParams;
     constructor(options?: Partial<ServerParams>);
-    init(config: ServerParams): Promise<{}>;
+    get ext(): string;
+    private __doPreRunTasks;
+    init(config: ServerParams): Promise<unknown>;
     hookup(path: string): (target: ClassConstructor<Listener>) => void;
     use(target: ClassConstructor<Middleware>): void;
     database(cn: string): (target: ClassConstructor<DBridge<any, any>>) => void;

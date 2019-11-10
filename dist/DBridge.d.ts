@@ -14,6 +14,7 @@ export interface CreateResponse extends Response {
 export declare abstract class DBridge<DBType, QueryType> {
     abstract db: DBType;
     constructor(db_link: string, server?: Server);
+    initConnection(): Promise<any>;
     get(query: QueryType): Promise<LooseObject[] | any>;
     update(query: QueryType): Promise<UpdateResponse | any>;
     delete(query: QueryType): Promise<DeleteResponse | any>;

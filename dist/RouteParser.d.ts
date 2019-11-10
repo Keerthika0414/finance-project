@@ -15,8 +15,8 @@ interface PugRoute {
 }
 export declare class PugParser extends RouteParser<PugRoute> {
     constructor(path: string, server: Server);
-    compile(route: string): [Error | null, boolean];
-    compileAll(): Promise<[Error | null, boolean]>;
-    render(res: Response, route: string, locals?: LooseObject): Promise<[Error | null, boolean]>;
+    compile(route: string): CallbackReturnType;
+    compileAll(): Promise<CallbackReturnType>;
+    render(res: Response, route: string, locals?: LooseObject): Promise<CallbackReturnType>;
 }
 export {};

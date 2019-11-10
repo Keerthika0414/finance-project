@@ -1,3 +1,4 @@
+/// <reference types="node" />
 export interface LoadFilesFDResponse {
     fileDescriptor: number;
     headers: {

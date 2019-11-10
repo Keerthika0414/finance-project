@@ -1,1 +1,1 @@
-export declare const database: (connectionURI: string) => (target: import("rc/Curie/types").ClassConstructor<import("rc/Curie/DBridge").DBridge<any, any>>) => void;
+export declare const database: (connectionURI: string) => (target: import("../../types").ClassConstructor<import("../..").DBridge<any, any>>) => void;

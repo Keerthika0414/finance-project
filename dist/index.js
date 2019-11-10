@@ -13,4 +13,5 @@ __export(require("./helpers/withTime"));
 __export(require("./helpers/loadFiles"));
 __export(require("./helpers/log"));
 __export(require("./helpers/parseBody"));
+__export(require("./@core"));
 //# sourceMappingURL=index.js.map

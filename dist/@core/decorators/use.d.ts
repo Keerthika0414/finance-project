@@ -1,1 +1,1 @@
-export declare const use: () => (target: import("rc/Curie/types").ClassConstructor<import("rc/Curie/Middleware").Middleware>) => void;
+export declare const use: () => (target: import("../../types").ClassConstructor<import("../..").Middleware>) => void;

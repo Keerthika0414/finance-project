@@ -1,4 +1,3 @@
-import http from "http"
 import { CallbackReturnType, Response, LooseObject, Request } from "./types";
 import { Server } from "./Server";
 

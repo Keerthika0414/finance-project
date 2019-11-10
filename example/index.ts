@@ -1,4 +1,4 @@
-import { PostDBridge, initApp, database, TSCompiler, useCompiler } from "curie-server";
+import { PostDBridge, initApp, database } from "curie-server";
 import { resolve } from "path";
 
 (async () => {
@@ -11,7 +11,4 @@ import { resolve } from "path";
   class x extends PostDBridge {
     cache_time = 50000
   }
-
-  @useCompiler(/\.ts$/gi, resolve(__dirname, "tsconfig.build.json"))
-  class c extends TSCompiler {}
 })()

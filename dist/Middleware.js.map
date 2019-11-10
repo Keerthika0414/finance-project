@@ -1,1 +1,1 @@
-{"version":3,"file":"Middleware.js","sourceRoot":"","sources":["../src/Curie/Middleware.ts"],"names":[],"mappings":";;AAEA;IAEE,YAAY,MAAc;QACxB,IAAI,CAAC,MAAM,GAAG,MAAM,CAAA;IACtB,CAAC;CAGF;AAPD,gCAOC"}
+{"version":3,"file":"Middleware.js","sourceRoot":"","sources":["../src/Middleware.ts"],"names":[],"mappings":";;AAEA,MAAsB,UAAU;IAE9B,YAAY,MAAc;QACxB,IAAI,CAAC,MAAM,GAAG,MAAM,CAAA;IACtB,CAAC;CAGF;AAPD,gCAOC"}
