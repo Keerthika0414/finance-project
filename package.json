@@ -24,7 +24,7 @@
     "fs-extra": "^7.0.1",
     "mime": "^2.4.4",
     "pg-promise": "^8.6.4",
-    "pug": "^2.0.3",
+    "pug": "^3.0.1",
     "typescript": "^3.4.3"
   },
   "devDependencies": {
